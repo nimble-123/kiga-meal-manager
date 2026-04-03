@@ -1,6 +1,6 @@
 {
   "name": "kiga-essenverwaltung",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Essenverwaltung für KiGa Mitte",
   "main": "electron/main.js",
   "scripts": {
