@@ -1,0 +1,45 @@
+const TABS = [
+  { id: 'daily', label: 'Tageserfassung', icon: '\uD83D\uDCCB', tooltip: 'Tägliche Essenauswahl (Ctrl+1)' },
+  { id: 'stamm', label: 'Stammdaten', icon: '\uD83D\uDC67', tooltip: 'Kinder verwalten (Ctrl+2)' },
+  { id: 'month', label: 'Monatsübersicht', icon: '\uD83D\uDCC5', tooltip: 'Monatliche Abrechnung (Ctrl+3)' },
+  { id: 'year', label: 'Jahresübersicht', icon: '\uD83D\uDCC8', tooltip: 'Jahresübersicht (Ctrl+4)' },
+  { id: 'analytics', label: 'Auswertung', icon: '\uD83D\uDCCA', tooltip: 'Charts & Analysen (Ctrl+5)' },
+  { id: 'admin', label: 'Verwaltung', icon: '\u2699\uFE0F', tooltip: 'Import, Export & Einstellungen (Ctrl+6)' },
+];
+
+export default function Header({ tab, setTab, activeCount }) {
+  return (
+    <div style={{ background: 'linear-gradient(135deg,#2D9F93 0%,#247A71 100%)', padding: '16px 24px', color: 'white' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 1200, margin: '0 auto' }}>
+        <div>
+          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.5px' }}>{'\uD83C\uDFE0'} KiGa Mitte</div>
+          <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
+            Essenverwaltung v{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '?'} &middot; {activeCount} aktive Kinder
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 10, padding: 3 }}>
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              title={t.tooltip}
+              style={{
+                padding: '7px 12px',
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: tab === t.id ? 700 : 500,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                background: tab === t.id ? 'white' : 'transparent',
+                color: tab === t.id ? '#2D9F93' : 'rgba(255,255,255,0.9)',
+              }}
+            >
+              {t.icon} {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

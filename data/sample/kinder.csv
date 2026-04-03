@@ -1,0 +1,77 @@
+Name;Gruppe;BUT;Zahlungspflichtiger;Adresse;Kassenzeichen
+Müller, Emma;Delfin;Nein;Müller, Sandra und Thomas;Gartenweg 3;10.20001.1
+Fischer, Lian;Delfin;Nein;Fischer, Maria und Jan;Birkenstr. 24;10.20002.2
+Weber, Mathis;Delfin;Nein;Weber, Stefan;Lindenallee 5;10.20003.3
+Weber, Theo;Delfin;Nein;Weber, Stefan;Lindenallee 5;10.20003.3
+Schmidt, Matilda;Delfin;Nein;Schmidt, Andreas;Rosenweg 33;10.20004.4
+Hoffmann, Holly;Delfin;Nein;Hoffmann, Julia;Sonnenstr. 5;10.20005.5
+Wagner, Lilly;Delfin;Nein;Wagner, Katrin;Blumenweg 29;10.20006.6
+Wagner, Lotta;Delfin;Nein;Wagner, Katrin;Blumenweg 29;10.20006.6
+Becker, Ida;Delfin;Nein;Becker, Martin;Feldstr. 35;10.20007.7
+Koch, Murad;Delfin;Nein;Koch, Hasan;Waldweg 25;10.20008.8
+Koch, Parisa;Delfin;Nein;Koch, Hasan;Waldweg 25;10.20008.8
+Richter, Len;Delfin;Nein;Richter, Nils;Parkstr. 76;10.20009.9
+Klein, Milea;Delfin;Nein;Klein, Martina;Ahornweg 9;10.20010.0
+Klein, Jaro;Delfin;Nein;Klein, Martina;Ahornweg 9;10.20010.0
+Braun, Malik;Dino;Ja;Braun, Jelena;Eichenstr. 8;10.20011.1
+Schröder, Lilly;Dino;Nein;Schröder, Jana;Hauptstr. 89;10.20012.2
+Wolf, Alina;Dino;Nein;Wolf, Rosa;Erlenweg 13;10.20013.3
+Neumann, Oskar;Dino;Nein;Neumann, Andreas;Kastanienstr. 9;10.20014.4
+Peters, Samuel;Dino;Ja;Peters, Carlos;Dorfstr. 26;10.20015.5
+Schwarz, Liana;Dino;Nein;Schwarz, Andrej;Ringstr. 11;10.20016.6
+Zimmermann, Talvi;Dino;Nein;Zimmermann, Lennart;Buchenweg 117;10.20017.7
+Krüger, Matilda;Dino;Nein;Krüger, Anja;Kirchstr. 19;10.20018.8
+Hartmann, Alana;Dino;Nein;Hartmann, Kathrin;Wiesenweg 10;10.20019.9
+Werner, Hailey;Dino;Nein;Werner, Katja;Schulstr. 9;10.20020.0
+Lange, Leo;Dino;Ja;Lange, Jasmin;Friedrichstr. 56;10.20021.1
+Meier, Tammo;Dino;Nein;Meier, Timo;Erlenweg 9;10.20022.2
+Krause, Liyana;Dino;Nein;Krause, Alexander;Bergstr. 23;10.20023.3
+Lehmann, Clara;Dino;Nein;Lehmann, Julia;Talweg 5;10.20024.4
+Schmitt, Emma;Dino;Nein;Schmitt, Andreas;Wiesenweg 6a;10.20025.5
+König, Abdul;Micky Maus;Ja;König, Abdullah;Dorfstr. 28;10.20026.6
+Walter, Julian;Micky Maus;Ja;Walter, Carlos;Bahnhofstr. 32A;10.20027.7
+Mayer, Jiyan;Micky Maus;Ja;Mayer, Hakim;Buchenweg 121;10.20028.8
+Huber, Matheo;Micky Maus;Nein;Huber, Mareike;Grüner Weg 1;10.20029.9
+Kaiser, Leon;Micky Maus;Nein;Kaiser, Christian;Hauptstr. 97;10.20030.0
+Ludwig, Jaiden;Micky Maus;Ja;Ludwig, Fabienne;Hafenstr. 47;10.20031.1
+Baumann, Hugo;Micky Maus;Nein;Baumann, Fabian;Waldweg 25;10.20032.2
+Scholz, Kenan;Micky Maus;Nein;Scholz, Robert;Lindenstr. 109a;10.20033.3
+Frank, Hanno;Micky Maus;Nein;Frank, Niklas;Lindenstr. 183;10.20034.4
+Berger, Leonie;Micky Maus;Nein;Berger, Jannik;Deichweg 14;10.20035.5
+Winkler, Sami;Micky Maus;Nein;Winkler, Dominika;Schillerstr. 3;10.20036.6
+Friedrich, Henry;Micky Maus;Nein;Friedrich, Stefanie;Mühlenweg 3;10.20037.7
+Beck, Nora;Micky Maus;Nein;Beck, Jesse;Kantstr. 11;10.20038.8
+Lorenz, Dawid;Micky Maus;Nein;Lorenz, Nikolai;Weststr. 5;10.20039.9
+Schmitt, Frida;Micky Maus;Nein;Schmitt, Andreas;Wiesenweg 6a;10.20025.5
+Böhm, Malia;Möwen;Nein;Böhm, Jenny;Schulstr. 50;10.20040.0
+Engel, Nami;Möwen;Nein;Engel, Isabel;Hafenstr. 34;10.20041.1
+Vogel, Larissa;Möwen;Nein;Vogel, Melanie;Ludwigstr. 36;10.20042.2
+Seidel, Isa;Möwen;Nein;Seidel, Kristina;Moorweg 8;10.20043.3
+Horn, Tilda;Möwen;Nein;Horn, Lukas;Nordstr. 22;10.20044.4
+Keller, Aaron;Möwen;Nein;Keller, Andrea;Am Teich 47;10.20045.5
+Brandt, Milan;Möwen;Ja;Brandt, Angelina;Karlstr. 17;10.20046.6
+Jansen, Kesha;Pinguin;Ja;Jansen, Angelina;Karlstr. 17;10.20046.6
+Roth, Cali;Pinguin;Nein;Roth, Janine;Kantstr. 17;10.20047.7
+Roth, Fiete;Pinguin;Nein;Roth, Janine;Kantstr. 17;10.20047.7
+Roth, Nela;Pinguin;Nein;Roth, Janine;Kantstr. 17;10.20047.7
+Günther, Lilly;Pinguin;Nein;Günther, Hermann;Körnerstr. 43;10.20048.8
+Haas, Maxim;Pinguin;Nein;Haas, Waldemar;Am Park 10;10.20049.9
+Dietrich, Melody;Pinguin;Ja;Dietrich, Maurice;Schillerstr. 21;10.20050.0
+Dietrich, Dämon;Pinguin;Ja;Dietrich, Maurice;Schillerstr. 21;10.20050.0
+Nowak, Mileey;Pinguin;Ja;Nowak, Roxanne;Hafenstr. 6;10.20051.1
+Albrecht, Carla;Pinguin;Nein;Albrecht, Jorge;Deichweg 5;10.20052.2
+Müller, Jonah;Sandflöhe;Nein;Müller, Sandra und Thomas;Gartenweg 3;10.20001.1
+Schuster, Lenn;Sandflöhe;Nein;Schuster, Michael;Amtsweg 15;10.20053.3
+Kaiser, Keno;Sandflöhe;Nein;Kaiser, Christian;Hauptstr. 97;10.20030.0
+Yilmaz, Mehmet;Sandflöhe;Ja;Yilmaz, Yasemin;Ludwigstr. 36A;10.20054.4
+Sommer, Matti;Sandflöhe;Nein;Sommer, Christoph und Isabelle;Waldweg 25;10.20055.5
+Haas, Milan;Sandflöhe;Nein;Haas, Waldemar;Am Park 10;10.20049.9
+Scholz, Jasmin;Sandflöhe;Nein;Scholz, Robert;Lindenstr. 109A;10.20033.3
+Becker, Till;Sandflöhe;Nein;Becker, Martin;Feldstr. 35;10.20007.7
+Pfeiffer, Josephine;Sandflöhe;Nein;Pfeiffer, Svenja;Lindenstr. 168;10.20056.6
+Friedrich, Emma;Sandflöhe;Nein;Friedrich, Stefanie;Mühlenweg 3;10.20037.7
+Groß, Hannah;Sandflöhe;Nein;Groß, Nadine;Erlenweg 4;10.20057.7
+Groß, Lia;Sandflöhe;Nein;Groß, Nadine;Erlenweg 4;10.20057.7
+Hahn, Tjomme;Sandflöhe;Nein;Hahn, Christian und Ronja;Dorfstr. 33;10.20058.8
+Fuchs, Henrik;Sandflöhe;Nein;Fuchs, Dennis;Talweg 13;10.20059.9
+Xu, Mi;Sandflöhe;Nein;Xu, Han;Bachstr. 8;10.20060.0
