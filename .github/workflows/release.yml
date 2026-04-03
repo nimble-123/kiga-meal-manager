@@ -21,9 +21,7 @@ jobs:
       - name: Unit Tests
         run: npm test
       - name: Build & Package
-        run: npm run package
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build && npx electron-builder --win --publish never
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v6
         with:
@@ -44,9 +42,7 @@ jobs:
       - name: Unit Tests
         run: npm test
       - name: Build & Package
-        run: npm run package:mac
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build && npx electron-builder --mac --publish never
       - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v6
         with:
