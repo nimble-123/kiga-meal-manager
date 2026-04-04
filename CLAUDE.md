@@ -21,7 +21,7 @@ src/
   main.jsx             React Entry Point
   components/
     Header.jsx         Navigation Header mit Version + 6 Tabs
-    DailyEntry.jsx     Tageserfassung (Essenauswahl pro Kind/Tag)
+    DailyEntry.jsx     Tageserfassung (Essenauswahl + Abmeldung pro Kind/Tag)
     MonthlyReport.jsx  Monatsübersicht (Zusammenfassung pro Kind)
     YearlyReport.jsx   Jahresübersicht (12-Monats-Matrix)
     Stammdaten.jsx     Kinderverwaltung
@@ -38,7 +38,7 @@ src/
       ConfirmDialog.jsx Modal-Dialog für destruktive Aktionen
   hooks/
     useChildren.js     Kinder- und Gruppen-CRUD + Persistenz + Bulk-Import
-    useMeals.js        Essens-Daten pro Tag/Monat (Preise + Auswahl + byMeal-Tracking)
+    useMeals.js        Essens-Daten pro Tag/Monat (Preise + Auswahl + Abmeldungen + byMeal-Tracking)
     useSortableTable.js Sortier-Hook für Tabellen (locale-aware, accessor-support)
   data/
     childUtils.js      createChild() Factory-Funktion für Child-Objekte
@@ -71,7 +71,7 @@ src/
 
 - **State-Management:** Kein Redux/Zustand - Custom Hooks (`useChildren`, `useMeals`) verwalten State in `App.jsx` und reichen Props an Komponenten durch.
 - **Storage:** Zentrales Modul `src/utils/storage.js` abstrahiert über electron-store / localStorage. Alle Storage-Zugriffe laufen hierüber.
-- **Datenspeicherung:** Schlüssel: `meals-YYYY-MM` für Essens-Daten, `children` für Kinderliste, `gruppen` für Gruppen.
+- **Datenspeicherung:** Schlüssel: `meals-YYYY-MM` für Essens-Daten, `children` für Kinderliste, `gruppen` für Gruppen. Tages-Daten enthalten `prices`, `selections` und optional `abmeldungen` (`{ active: bool, grund: string }` pro Kind).
 - **Gruppen:** Dynamisch verwaltbar im Verwaltungs-Tab. Farben via `getGruppeColor()` (feste Map + Hash-Fallback).
 - **Filter:** Alle Views unterstützen Gruppenfilter. Summen/Gesamt-Anzeigen berücksichtigen immer den aktiven Filter via `filteredChildren`.
 - **Sortierung:** `useSortableTable` Hook + `SortHeader` Komponente. Alle Tabellen sind einheitlich sortierbar.

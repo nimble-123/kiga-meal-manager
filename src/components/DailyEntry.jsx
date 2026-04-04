@@ -6,7 +6,7 @@ import { isClosedDay } from '../data/holidays';
 import { useSortableTable } from '../hooks/useSortableTable';
 import { getDailyBreakdown, BreakdownDisplay } from '../utils/mealBreakdown';
 
-export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter, setGruppeFilter, gruppen, filteredChildren, todayData, setTodayPrices, setTodaySelection }) {
+export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter, setGruppeFilter, gruppen, filteredChildren, todayData, setTodayPrices, setTodaySelection, setTodayAbmeldung }) {
   const isClosed = isClosedDay(selectedDate);
   const dateObj = new Date(selectedDate + 'T12:00:00');
 
@@ -20,6 +20,7 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
   const totalCount = filteredChildren.filter((c) => todayData.selections?.[c.id]).length;
   const totalSum = filteredChildren.reduce((s, c) => s + getPrice(c), 0);
   const breakdown = getDailyBreakdown(filteredChildren, todayData.selections);
+  const abmeldungenCount = filteredChildren.filter((c) => todayData.abmeldungen?.[c.id]?.active).length;
 
   return (
     <div className="fade-in">
@@ -76,6 +77,8 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
               <SortHeader column="gruppe" label="Gruppe" sortConfig={sortConfig} onSort={requestSort} />
               <th>Hinweise</th>
               <th style={{ textAlign: 'center' }}>Gericht</th>
+              <th style={{ textAlign: 'center', width: 40 }} data-tooltip="Abmeldung">Abm.</th>
+              <th style={{ width: 120 }}>Grund</th>
               <SortHeader column="betrag" label="Betrag" sortConfig={sortConfig} onSort={requestSort} style={{ textAlign: 'right' }} accessor={getPrice} />
             </tr>
           </thead>
@@ -83,8 +86,9 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
             {sortedData.map((c, i) => {
               const sel = todayData.selections?.[c.id] || '';
               const price = getPrice(c);
+              const abm = todayData.abmeldungen?.[c.id];
               return (
-                <tr key={c.id}>
+                <tr key={c.id} style={abm?.active ? { background: '#FEF3C7', opacity: 0.75 } : undefined}>
                   <td style={{ color: '#9CA3AF', fontSize: 12 }}>{i + 1}</td>
                   <td style={{ fontWeight: 600 }}>
                     {c.name} {c.but && <Badge color="#D97706">BUT</Badge>}
@@ -119,6 +123,40 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
                       </div>
                     )}
                   </td>
+                  <td style={{ textAlign: 'center' }}>
+                    {isClosed ? (
+                      <span style={{ fontSize: 12, color: '#9CA3AF' }}>{'\u2013'}</span>
+                    ) : (
+                      <input
+                        type="checkbox"
+                        checked={!!abm?.active}
+                        onChange={(e) => {
+                          const current = abm || {};
+                          setTodayAbmeldung(c.id, { ...current, active: e.target.checked });
+                        }}
+                        style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#2D9F93' }}
+                        data-tooltip="Kind abgemeldet"
+                      />
+                    )}
+                  </td>
+                  <td>
+                    {isClosed ? (
+                      <span style={{ fontSize: 12, color: '#9CA3AF' }}>{'\u2013'}</span>
+                    ) : (
+                      <input
+                        type="text"
+                        value={abm?.grund || ''}
+                        onChange={(e) => {
+                          const current = abm || {};
+                          setTodayAbmeldung(c.id, { ...current, grund: e.target.value });
+                        }}
+                        placeholder="z.B. krank"
+                        className="input"
+                        style={{ width: '100%', fontSize: 12, padding: '3px 6px' }}
+                        disabled={!abm?.active}
+                      />
+                    )}
+                  </td>
                   <td style={{ textAlign: 'right', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
                     {price > 0 ? fmtEuro(price) : '\u2013'}
                   </td>
@@ -131,6 +169,11 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
           <span>
             Gesamt: {totalCount} Essen
             <BreakdownDisplay counts={breakdown} />
+            {abmeldungenCount > 0 && (
+              <span style={{ fontSize: 12, fontWeight: 500, marginLeft: 8, color: '#D97706' }}>
+                ({abmeldungenCount} abgemeldet)
+              </span>
+            )}
           </span>
           <span style={{ color: '#059669' }}>{fmtEuro(totalSum)}</span>
         </div>

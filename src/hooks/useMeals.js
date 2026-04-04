@@ -25,19 +25,27 @@ export function useMeals(selectedDate, activeChildren) {
     [monthKey]
   );
 
-  const todayData = dailyData[selectedDate] || { prices: {}, selections: {} };
+  const todayData = dailyData[selectedDate] || { prices: {}, selections: {}, abmeldungen: {} };
 
   const setTodayPrices = (gericht, val) => {
     const nd = { ...dailyData };
-    if (!nd[selectedDate]) nd[selectedDate] = { prices: {}, selections: {} };
+    if (!nd[selectedDate]) nd[selectedDate] = { prices: {}, selections: {}, abmeldungen: {} };
     nd[selectedDate] = { ...nd[selectedDate], prices: { ...nd[selectedDate].prices, [gericht]: val } };
     saveDailyData(nd);
   };
 
   const setTodaySelection = (childId, val) => {
     const nd = { ...dailyData };
-    if (!nd[selectedDate]) nd[selectedDate] = { prices: {}, selections: {} };
+    if (!nd[selectedDate]) nd[selectedDate] = { prices: {}, selections: {}, abmeldungen: {} };
     nd[selectedDate] = { ...nd[selectedDate], selections: { ...nd[selectedDate].selections, [childId]: val } };
+    saveDailyData(nd);
+  };
+
+  const setTodayAbmeldung = (childId, abmeldung) => {
+    const nd = { ...dailyData };
+    if (!nd[selectedDate]) nd[selectedDate] = { prices: {}, selections: {}, abmeldungen: {} };
+    if (!nd[selectedDate].abmeldungen) nd[selectedDate].abmeldungen = {};
+    nd[selectedDate] = { ...nd[selectedDate], abmeldungen: { ...nd[selectedDate].abmeldungen, [childId]: abmeldung } };
     saveDailyData(nd);
   };
 
@@ -71,5 +79,5 @@ export function useMeals(selectedDate, activeChildren) {
     [activeChildren, dailyData, selectedDate]
   );
 
-  return { dailyData, todayData, setTodayPrices, setTodaySelection, getMonthSummary };
+  return { dailyData, todayData, setTodayPrices, setTodaySelection, setTodayAbmeldung, getMonthSummary };
 }

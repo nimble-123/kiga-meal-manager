@@ -20,7 +20,7 @@ export default function App() {
   const [gruppeFilter, setGruppeFilter] = useState('Alle');
 
   const { children, activeChildren, gruppen, loading, saveIndicator, addChild, updateChild, setChildrenBulk, setGruppenBulk, addGruppe, removeGruppe, renameGruppe } = useChildren();
-  const { todayData, setTodayPrices, setTodaySelection, getMonthSummary } = useMeals(selectedDate, activeChildren);
+  const { todayData, setTodayPrices, setTodaySelection, setTodayAbmeldung, getMonthSummary } = useMeals(selectedDate, activeChildren);
 
   const filteredChildren = useMemo(() => {
     let list = tab === 'stamm' ? children : activeChildren;
@@ -83,6 +83,7 @@ export default function App() {
                 todayData={todayData}
                 setTodayPrices={setTodayPrices}
                 setTodaySelection={setTodaySelection}
+                setTodayAbmeldung={setTodayAbmeldung}
               />
             )}
 
