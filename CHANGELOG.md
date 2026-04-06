@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/nimble-123/kiga-meal-manager/compare/v1.1.0...v1.2.0) (2026-04-06)
+
+
+### Features
+
+* add Abmeldung checkbox and notes field to daily entry view ([2dc8eee](https://github.com/nimble-123/kiga-meal-manager/commit/2dc8eee41c72978ef5ebdec6a7e250e6a076c1d3))
+
+
+### Bug Fixes
+
+* prevent input focus loss in ChildForm by extracting Field component ([bcff2df](https://github.com/nimble-123/kiga-meal-manager/commit/bcff2df9a53071890b8b211d5c5161aabe047b34))
+
 ## [1.1.0] - 2026-04-04
 
 ### Added
