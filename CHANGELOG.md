@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1](https://github.com/nimble-123/kiga-meal-manager/compare/v1.2.0...v1.2.1) (2026-04-06)
+
+
+### Bug Fixes
+
+* **ci:** integrate build jobs into release-please workflow ([799ae94](https://github.com/nimble-123/kiga-meal-manager/commit/799ae9472afd335f621f864e0681aca58594d65f))
+
 ## [1.2.0](https://github.com/nimble-123/kiga-meal-manager/compare/v1.1.0...v1.2.0) (2026-04-06)
 
 
