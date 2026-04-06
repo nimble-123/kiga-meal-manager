@@ -87,6 +87,39 @@ describe('App', () => {
     });
   });
 
+  it('shows abmeldung checkbox and grund field in daily view', async () => {
+    seedStore({ children: testChildren, gruppen: ['Delfin', 'Dino'] });
+    render(<App />);
+    await waitFor(() => screen.getByText('Müller, Emma'));
+
+    // Set a weekday (Wednesday 2026-04-08) so the day is not closed
+    const dateInput = screen.getByDisplayValue(/\d{4}-\d{2}-\d{2}/);
+    fireEvent.change(dateInput, { target: { value: '2026-04-08' } });
+
+    await waitFor(() => {
+      expect(screen.getByText('Abm.')).toBeInTheDocument();
+      expect(screen.getByText('Grund')).toBeInTheDocument();
+    });
+
+    // Checkboxes for abmeldung should be present (one per active child)
+    const checkboxes = screen.getAllByRole('checkbox');
+    expect(checkboxes.length).toBeGreaterThanOrEqual(2);
+
+    // Check first child as abgemeldet
+    fireEvent.click(checkboxes[0]);
+
+    // Grund input should now be enabled
+    const grundInputs = screen.getAllByPlaceholderText('z.B. krank');
+    expect(grundInputs[0]).not.toBeDisabled();
+
+    // Type a reason
+    fireEvent.change(grundInputs[0], { target: { value: 'Urlaub' } });
+    expect(grundInputs[0].value).toBe('Urlaub');
+
+    // Second child's grund input should be disabled (not checked)
+    expect(grundInputs[1]).toBeDisabled();
+  });
+
   it('filters children by group', async () => {
     seedStore({ children: testChildren, gruppen: ['Delfin', 'Dino'] });
     render(<App />);
