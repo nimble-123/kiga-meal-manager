@@ -115,4 +115,4 @@ src/
 ## CI/CD
 
 - **CI:** `.github/workflows/ci.yml` — Unit-Tests + Build + E2E auf jedem Push/PR
-- **Release:** `.github/workflows/release.yml` — Baut Win/Mac Pakete bei Git-Tag `v*`, erstellt GitHub Release Draft
+- **Release:** `.github/workflows/release-please.yml` — Release-Please erstellt PR + Release, baut danach Win/Mac Pakete und laedt sie zum Release hoch

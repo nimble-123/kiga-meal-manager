@@ -19,13 +19,74 @@ jobs:
         id: release
         with:
           release-type: node
-          changelog-types: >
-            [
-              {"type":"feat","section":"Features","hidden":false},
-              {"type":"fix","section":"Bug Fixes","hidden":false},
-              {"type":"chore","section":"Maintenance","hidden":false},
-              {"type":"docs","section":"Documentation","hidden":false},
-              {"type":"refactor","section":"Refactoring","hidden":false},
-              {"type":"test","section":"Tests","hidden":false},
-              {"type":"ci","section":"CI/CD","hidden":false}
-            ]
+
+  build-windows:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm install
+      - name: Unit Tests
+        run: npm test
+      - name: Build & Package
+        run: npm run build && npx electron-builder --win --publish never
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: windows-release
+          path: |
+            release/*.exe
+          retention-days: 30
+
+  build-macos:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm install
+      - name: Unit Tests
+        run: npm test
+      - name: Build & Package
+        run: npm run build && npx electron-builder --mac --publish never
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: macos-release
+          path: |
+            release/*.dmg
+          retention-days: 30
+
+  publish:
+    needs: [release-please, build-windows, build-macos]
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: windows-release
+          path: artifacts/
+
+      - name: Download macOS Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: macos-release
+          path: artifacts/
+
+      - name: Upload Assets to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: |
+            artifacts/*.exe
+            artifacts/*.dmg
