@@ -1,7 +1,7 @@
 import { parseChildrenCSV, parseGruppenCSV } from '../utils/import';
 import { openFile } from '../utils/storage';
 
-export default function EmptyState({ onImport, onAddChild }) {
+export default function EmptyState({ onImport, onAddChild, onStartTour }) {
   const handleImportCSV = async () => {
     const result = await openFile([{ name: 'CSV-Dateien', extensions: ['csv'] }]);
     if (!result.success) return;
@@ -27,12 +27,15 @@ export default function EmptyState({ onImport, onAddChild }) {
         <div style={{ fontSize: 14, color: '#6B7280', marginBottom: 28, lineHeight: 1.6 }}>
           Noch keine Kinder angelegt. Importieren Sie eine CSV-Datei mit den Kinderdaten oder legen Sie Kinder manuell an.
         </div>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button className="btn btn-primary" style={{ padding: '10px 20px' }} onClick={handleImportCSV}>
             {'\uD83D\uDCE5'} Kinder aus CSV importieren
           </button>
           <button className="btn btn-secondary" style={{ padding: '10px 20px' }} onClick={onAddChild}>
             {'\u2795'} Kind manuell anlegen
+          </button>
+          <button className="btn btn-secondary" style={{ padding: '10px 20px' }} onClick={onStartTour}>
+            {'\uD83C\uDF93'} App-Tour starten
           </button>
         </div>
         <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 20 }}>

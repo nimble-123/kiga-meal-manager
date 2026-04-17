@@ -79,6 +79,81 @@ export function parseGruppenCSV(csvString) {
 
 // --- Bewegungsdaten ---
 
+export function exportMealsCSV(allMealsData, children) {
+  const nameMap = Object.fromEntries(children.map((c) => [c.id, c.name]));
+  const rows = [['Datum', 'Name', 'Gericht', 'Preis', 'Abgemeldet', 'Grund']];
+
+  const monthKeys = Object.keys(allMealsData).sort();
+  for (const mk of monthKeys) {
+    const monthData = allMealsData[mk];
+    if (!monthData) continue;
+    const dateKeys = Object.keys(monthData).sort();
+    for (const dateStr of dateKeys) {
+      const day = monthData[dateStr];
+      if (!day) continue;
+      const allChildIds = new Set([
+        ...Object.keys(day.selections || {}),
+        ...Object.keys(day.abmeldungen || {}).filter((id) => day.abmeldungen[id]?.active),
+      ]);
+      for (const cid of [...allChildIds].sort()) {
+        const name = nameMap[cid] || cid;
+        const abm = day.abmeldungen?.[cid];
+        if (abm?.active) {
+          rows.push([dateStr, name, '', '', 'Ja', abm.grund || '']);
+        } else {
+          const sel = day.selections?.[cid];
+          if (sel) {
+            const price = day.prices?.[sel] ?? '';
+            rows.push([dateStr, name, sel, price, '', '']);
+          }
+        }
+      }
+    }
+  }
+
+  return rows.map((r) => r.join(';')).join('\n');
+}
+
+export function parseMealsCSV(csvString, children) {
+  const clean = csvString.replace(/^\uFEFF/, '');
+  const result = Papa.parse(clean, { header: true, delimiter: ';', skipEmptyLines: true });
+  const errors = [];
+  const idMap = Object.fromEntries(children.map((c) => [c.name, c.id]));
+  const meals = {};
+
+  result.data.forEach((row, i) => {
+    const datum = (row.Datum || '').trim();
+    const name = (row.Name || '').trim();
+    if (!datum || !name) { errors.push(`Zeile ${i + 2}: Datum oder Name fehlt`); return; }
+
+    const childId = idMap[name];
+    if (!childId) { errors.push(`Zeile ${i + 2}: Kind "${name}" nicht gefunden`); return; }
+
+    const [y, m] = datum.split('-');
+    const monthKey = `meals-${y}-${m}`;
+    if (!meals[monthKey]) meals[monthKey] = {};
+    if (!meals[monthKey][datum]) meals[monthKey][datum] = { prices: {}, selections: {}, abmeldungen: {} };
+
+    const day = meals[monthKey][datum];
+    const abgemeldet = (row.Abgemeldet || '').trim().toLowerCase();
+
+    if (['ja', 'true', '1', 'x'].includes(abgemeldet)) {
+      day.abmeldungen[childId] = { active: true, grund: (row.Grund || '').trim() };
+    } else {
+      const gericht = (row.Gericht || '').trim();
+      const preis = parseFloat((row.Preis || '').replace(',', '.'));
+      if (gericht) {
+        day.selections[childId] = gericht;
+        if (!isNaN(preis) && preis > 0) {
+          day.prices[gericht] = preis;
+        }
+      }
+    }
+  });
+
+  return { meals, errors, count: Object.keys(meals).length };
+}
+
 export function parseMealsJSON(jsonString) {
   try {
     const data = JSON.parse(jsonString);

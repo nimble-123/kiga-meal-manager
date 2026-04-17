@@ -40,6 +40,10 @@ export function useChildren() {
     setChildren((prev) => prev.map((c) => (c.id === id ? { ...c, ...data } : c)));
   };
 
+  const deleteChild = (id) => {
+    setChildren((prev) => prev.filter((c) => c.id !== id));
+  };
+
   const setChildrenBulk = useCallback((newChildren) => {
     setChildren(newChildren);
     storageSet('children', newChildren);
@@ -80,5 +84,5 @@ export function useChildren() {
     return true;
   }, [gruppen, saveGruppen]);
 
-  return { children, activeChildren, gruppen, loading, saveIndicator, addChild, updateChild, setChildrenBulk, setGruppenBulk, addGruppe, removeGruppe, renameGruppe };
+  return { children, activeChildren, gruppen, loading, saveIndicator, addChild, updateChild, deleteChild, setChildrenBulk, setGruppenBulk, addGruppe, removeGruppe, renameGruppe };
 }

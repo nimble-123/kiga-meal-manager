@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DEFAULT_GRUPPEN } from '../utils/dates';
 
 function Field({ label, k, type = 'text', value, onChange, children: fieldChildren, ...props }) {
@@ -24,7 +24,7 @@ function Field({ label, k, type = 'text', value, onChange, children: fieldChildr
   );
 }
 
-export default function ChildForm({ child, gruppen = DEFAULT_GRUPPEN, onSave, onCancel }) {
+export default function ChildForm({ child, gruppen = DEFAULT_GRUPPEN, onSave, onCancel, onFormChange }) {
   const [form, setForm] = useState(
     child || {
       name: '',
@@ -39,6 +39,14 @@ export default function ChildForm({ child, gruppen = DEFAULT_GRUPPEN, onSave, on
       austritt: '',
     }
   );
+
+  useEffect(() => {
+    if (child) setForm(child);
+  }, [child]);
+
+  useEffect(() => {
+    onFormChange?.(form);
+  }, [form, onFormChange]);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 

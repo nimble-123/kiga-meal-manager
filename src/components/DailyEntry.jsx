@@ -25,13 +25,13 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
   return (
     <div className="fade-in">
       <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
-        <div className="card" style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div id="tour-date" className="card" style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>Datum:</span>
           <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="input" style={{ fontWeight: 600 }} />
           <span style={{ fontSize: 14 }}>{WOCHENTAGE[dateObj.getDay()]}</span>
           {isClosed && <Badge color="#DC2626">Geschlossen</Badge>}
         </div>
-        <select className="input" value={gruppeFilter} onChange={(e) => setGruppeFilter(e.target.value)}>
+        <select id="tour-group-filter" className="input" value={gruppeFilter} onChange={(e) => setGruppeFilter(e.target.value)}>
           <option>Alle</option>
           {gruppen.map((g) => (
             <option key={g}>{g}</option>
@@ -40,7 +40,7 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
       </div>
 
       {!isClosed && (
-        <div className="card" style={{ padding: 16, marginBottom: 20 }}>
+        <div id="tour-meal-prices" className="card" style={{ padding: 16, marginBottom: 20 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#6B7280', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             Gerichtpreise heute
           </div>
@@ -68,7 +68,7 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
         </div>
       )}
 
-      <div className="card" style={{ overflow: 'hidden' }}>
+      <div id="tour-meal-table" className="card" style={{ overflow: 'hidden' }}>
         <table>
           <thead>
             <tr style={{ background: '#FAFAF7' }}>
@@ -165,7 +165,7 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
             })}
           </tbody>
         </table>
-        <div style={{ padding: '12px 16px', background: '#F9F7F3', borderTop: '2px solid #E5E1DA', display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 14 }}>
+        <div id="tour-daily-summary" style={{ padding: '12px 16px', background: '#F9F7F3', borderTop: '2px solid #E5E1DA', display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 14 }}>
           <span>
             Gesamt: {totalCount} Essen
             <BreakdownDisplay counts={breakdown} />

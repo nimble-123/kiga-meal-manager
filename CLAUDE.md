@@ -6,6 +6,7 @@ Electron-Desktop-App zur Verwaltung der Essenkosten in einer Kindertagesstätte 
 
 - **Frontend:** React 19, Tailwind CSS 4, Vite 8
 - **Charts:** recharts
+- **Guided Tour:** driver.js
 - **Desktop:** Electron 41, electron-builder
 - **Datenspeicherung:** electron-store (lokale JSON-Datei im User-Verzeichnis)
 - **CSV-Parsing:** papaparse
@@ -20,15 +21,15 @@ src/
   App.jsx              Haupt-App mit Tab-Navigation (6 Views) + Keyboard-Shortcuts
   main.jsx             React Entry Point
   components/
-    Header.jsx         Navigation Header mit Version + 6 Tabs
+    Header.jsx         Navigation Header mit Version + 6 Tabs + Help-Button
     DailyEntry.jsx     Tageserfassung (Essenauswahl + Abmeldung pro Kind/Tag)
     MonthlyReport.jsx  Monatsübersicht (Zusammenfassung pro Kind)
     YearlyReport.jsx   Jahresübersicht (12-Monats-Matrix)
-    Stammdaten.jsx     Kinderverwaltung
+    Stammdaten.jsx     Kinderverwaltung + Gruppenverwaltung (sortierbar)
     ChildForm.jsx      Formular zum Anlegen/Bearbeiten von Kindern
     Analytics.jsx      Auswertungs-View mit 6 recharts-Charts
-    Administration.jsx Verwaltungs-View (Import/Export, Gruppen, Testdaten, Backup)
-    EmptyState.jsx     Willkommen-Screen bei leerem Store
+    Administration.jsx Verwaltungs-View (Import/Export, Testdaten, Backup, Auto-Backup)
+    EmptyState.jsx     Willkommen-Screen bei leerem Store + Tour-Button
     ui/
       Badge.jsx        Farbige Label-Badges
       Button.jsx       Button-Wrapper
@@ -40,11 +41,15 @@ src/
     useChildren.js     Kinder- und Gruppen-CRUD + Persistenz + Bulk-Import
     useMeals.js        Essens-Daten pro Tag/Monat (Preise + Auswahl + Abmeldungen + byMeal-Tracking)
     useSortableTable.js Sortier-Hook für Tabellen (locale-aware, accessor-support)
+    useAutoBackup.js   Automatisches periodisches Backup (Electron-only)
+    useTour.js         Geführte App-Tour via driver.js
+  config/
+    tourSteps.js       Tour-Schritte-Definition (17 Steps durch alle 6 Tabs)
   data/
     childUtils.js      createChild() Factory-Funktion für Child-Objekte
     holidays.js        Deutsche Feiertage + Schließtag-Prüfung
   utils/
-    storage.js         Zentrales Storage-Modul (get/set/delete/keys/openFile)
+    storage.js         Zentrales Storage-Modul (get/set/delete/keys/openFile/selectDirectory/saveFileToPath/listFiles/deleteFile)
     dates.js           Konstanten (Gerichte, Monate, Farben), Hilfsfunktionen
     csv.js             CSV-Download
     email.js           E-Mail-Versand mit CSV-Anhang
@@ -72,7 +77,7 @@ src/
 - **State-Management:** Kein Redux/Zustand - Custom Hooks (`useChildren`, `useMeals`) verwalten State in `App.jsx` und reichen Props an Komponenten durch.
 - **Storage:** Zentrales Modul `src/utils/storage.js` abstrahiert über electron-store / localStorage. Alle Storage-Zugriffe laufen hierüber.
 - **Datenspeicherung:** Schlüssel: `meals-YYYY-MM` für Essens-Daten, `children` für Kinderliste, `gruppen` für Gruppen. Tages-Daten enthalten `prices`, `selections` und optional `abmeldungen` (`{ active: bool, grund: string }` pro Kind).
-- **Gruppen:** Dynamisch verwaltbar im Verwaltungs-Tab. Farben via `getGruppeColor()` (feste Map + Hash-Fallback).
+- **Gruppen:** Dynamisch verwaltbar im Stammdaten-Tab (collapsible Panel über der Kindertabelle). Farben via `getGruppeColor()` (feste Map + Hash-Fallback).
 - **Filter:** Alle Views unterstützen Gruppenfilter. Summen/Gesamt-Anzeigen berücksichtigen immer den aktiven Filter via `filteredChildren`.
 - **Sortierung:** `useSortableTable` Hook + `SortHeader` Komponente. Alle Tabellen sind einheitlich sortierbar.
 - **Meal-Breakdown:** `getMonthSummary` liefert `byMeal: {A, B, C, D, E}` pro Kind. Footer zeigen Aufschlüsselung.
@@ -81,7 +86,10 @@ src/
 - **Version:** `__APP_VERSION__` wird von Vite aus package.json injiziert, im Header angezeigt.
 - **Styling:** Inline-Styles + Tailwind-Utility-Klassen. Farbschema: Beige (#FAF7F2), Teal (#2D9F93).
 - **Feiertage:** In `data/holidays.js`. An diesen Tagen wird die Essenauswahl gesperrt.
-- **Erststart:** Leerer Store zeigt EmptyState mit Import-Option. Sample-CSV in `data/sample/`.
+- **Erststart:** Leerer Store zeigt EmptyState mit Import-Option und Tour-Button. Sample-CSV in `data/sample/`.
+- **Geführte Tour:** driver.js-basierte Tour durch alle 6 Tabs. Startet automatisch beim Erststart, danach über Help-Button (?) im Header. Persistiert `tourCompleted` im Store.
+- **Auto-Backup:** Konfigurierbar im Backup-Panel (Intervall, Ordner, Max-Backups). Nur in Electron verfügbar. Settings unter `autoBackup` im Store.
+- **ConfirmDialogs:** Alle destruktiven Aktionen (Kind/Gruppe/Stammdaten/Bewegungsdaten löschen, Backup wiederherstellen) zeigen ConfirmDialog.
 
 ## Wichtige Konventionen
 
@@ -104,6 +112,10 @@ src/
 | `open-file` | Datei öffnen + Inhalt lesen (Import) |
 | `send-email-with-csv` | E-Mail mit CSV-Anhang |
 | `open-email` | Einfache E-Mail (mailto:) |
+| `select-directory` | Ordner-Auswahl-Dialog (Auto-Backup) |
+| `save-file-to-path` | Datei an Pfad speichern ohne Dialog |
+| `list-files` | Dateien in Verzeichnis auflisten |
+| `delete-file` | Datei löschen |
 
 ## Testing
 

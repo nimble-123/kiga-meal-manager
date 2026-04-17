@@ -36,7 +36,7 @@ describe('App', () => {
     // Click Verwaltung tab
     fireEvent.click(screen.getByText(/Verwaltung/));
     await waitFor(() => {
-      expect(screen.getByText(/Gruppen verwalten/)).toBeInTheDocument();
+      expect(screen.getByText(/Backup/)).toBeInTheDocument();
     });
   });
 

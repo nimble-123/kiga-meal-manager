@@ -14,4 +14,8 @@ contextBridge.exposeInMainWorld('api', {
   openFile: (data) => ipcRenderer.invoke('open-file', data),
   openEmail: (data) => ipcRenderer.invoke('open-email', data),
   sendEmailWithCSV: (data) => ipcRenderer.invoke('send-email-with-csv', data),
+  selectDirectory: () => ipcRenderer.invoke('select-directory'),
+  saveFileToPath: (data) => ipcRenderer.invoke('save-file-to-path', data),
+  listFiles: (data) => ipcRenderer.invoke('list-files', data),
+  deleteFile: (data) => ipcRenderer.invoke('delete-file', data),
 });

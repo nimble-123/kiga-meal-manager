@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import Badge from './ui/Badge';
 import ConfirmDialog from './ui/ConfirmDialog';
-import { getGruppeColor } from '../utils/dates';
+import { getGruppeColor, DEFAULT_GRUPPEN } from '../utils/dates';
 import { storageGet, storageSet, storageDelete, storageKeys, storageGetPath, openFile } from '../utils/storage';
-import { parseChildrenCSV, parseChildrenJSON, parseGruppenCSV, exportChildrenCSV, exportChildrenJSON, parseMealsJSON } from '../utils/import';
+import { parseChildrenCSV, parseChildrenJSON, parseGruppenCSV, exportChildrenCSV, exportChildrenJSON, parseMealsJSON, parseMealsCSV, exportMealsCSV } from '../utils/import';
 import { downloadCSV } from '../utils/csv';
 import { generateTestData } from '../utils/testData';
+import { useAutoBackup } from '../hooks/useAutoBackup';
 
 function Section({ title, icon, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -23,9 +24,7 @@ function Section({ title, icon, children, defaultOpen = false }) {
   );
 }
 
-export default function Administration({ children, activeChildren, gruppen, setChildrenBulk, setGruppenBulk, addGruppe, removeGruppe, renameGruppe }) {
-  const [newGruppeName, setNewGruppeName] = useState('');
-  const [gruppenError, setGruppenError] = useState('');
+export default function Administration({ children, activeChildren, gruppen, setChildrenBulk, setGruppenBulk }) {
   const [importPreview, setImportPreview] = useState(null);
   const [importMode, setImportMode] = useState('replace');
   const [confirm, setConfirm] = useState(null);
@@ -33,6 +32,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
   const [storagePath, setStoragePath] = useState('');
   const [testMonths, setTestMonths] = useState(6);
   const [feedback, setFeedback] = useState('');
+  const { settings: backupSettings, updateSettings: updateBackupSettings, pickFolder, isElectron: isElectronBackup } = useAutoBackup();
 
   useEffect(() => {
     (async () => {
@@ -48,18 +48,12 @@ export default function Administration({ children, activeChildren, gruppen, setC
     setTimeout(() => setFeedback(''), 3000);
   }, []);
 
-  // --- Gruppen ---
-  const handleAddGruppe = () => {
-    setGruppenError('');
-    if (!newGruppeName.trim()) return;
-    const ok = addGruppe(newGruppeName);
-    if (ok) { setNewGruppeName(''); } else { setGruppenError('Gruppe existiert bereits.'); }
-  };
-
-  const handleRemoveGruppe = (name) => {
-    setGruppenError('');
-    const ok = removeGruppe(name);
-    if (!ok) setGruppenError(`"${name}" kann nicht gelöscht werden, da noch Kinder zugeordnet sind.`);
+  // --- Stammdaten: Alle löschen ---
+  const handleDeleteAllChildren = () => {
+    setChildrenBulk([]);
+    setGruppenBulk(DEFAULT_GRUPPEN);
+    setConfirm(null);
+    showFeedback('Alle Stammdaten gelöscht');
   };
 
   // --- Stammdaten Import ---
@@ -141,6 +135,27 @@ export default function Administration({ children, activeChildren, gruppen, setC
     const keys = await storageKeys();
     setMealKeyCount(keys.filter((k) => k.startsWith('meals-')).length);
     showFeedback(`${count} Monate importiert`);
+  };
+
+  const handleExportMealsCSV = async () => {
+    const keys = await storageKeys();
+    const mealKeys = keys.filter((k) => k.startsWith('meals-')).sort();
+    const data = {};
+    for (const k of mealKeys) { data[k] = await storageGet(k); }
+    const csvContent = exportMealsCSV(data, children);
+    downloadCSV(`Bewegungsdaten_${new Date().toISOString().split('T')[0]}.csv`, csvContent);
+  };
+
+  const handleImportMealsCSV = async () => {
+    const result = await openFile([{ name: 'CSV-Dateien', extensions: ['csv'] }]);
+    if (!result.success) return;
+    const { meals, errors, count } = parseMealsCSV(result.content, children);
+    if (errors.length > 0) alert(`Warnungen:\n${errors.join('\n')}`);
+    if (count === 0 && errors.length > 0) return;
+    for (const [key, val] of Object.entries(meals)) { await storageSet(key, val); }
+    const keys = await storageKeys();
+    setMealKeyCount(keys.filter((k) => k.startsWith('meals-')).length);
+    showFeedback(`${count} Monate importiert (CSV)`);
   };
 
   const handleDeleteMeals = async () => {
@@ -262,36 +277,27 @@ export default function Administration({ children, activeChildren, gruppen, setC
         </div>
       )}
 
-      <Section title="Gruppen verwalten" icon={'\uD83C\uDFE8'} defaultOpen>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
-          <input
-            className="input"
-            placeholder="Neue Gruppe..."
-            value={newGruppeName}
-            onChange={(e) => setNewGruppeName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleAddGruppe()}
-          />
-          <button className="btn btn-primary" onClick={handleAddGruppe} disabled={!newGruppeName.trim()}>+ Hinzufügen</button>
+      <Section title="Stammdaten Import / Export" icon={'\uD83D\uDC67'} defaultOpen>
+        <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 12, lineHeight: 1.6 }}>
+          Exportiere oder importiere Kinderdaten als CSV oder JSON.
         </div>
-        {gruppenError && <div style={{ color: '#DC2626', fontSize: 12, marginBottom: 8 }}>{gruppenError}</div>}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {gruppen.map((g) => (
-            <div key={g} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#F3F0EB', borderRadius: 8, padding: '5px 10px' }}>
-              <Badge color={getGruppeColor(g)}>{g}</Badge>
-              <button className="btn btn-danger" style={{ fontSize: 10, padding: '2px 6px', lineHeight: 1 }} onClick={() => handleRemoveGruppe(g)} data-tooltip={`"${g}" löschen`}>
-                {'\u2715'}
-              </button>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Stammdaten Import / Export" icon={'\uD83D\uDC67'}>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
           <button className="btn btn-primary" onClick={handleExportCSV}>{'\uD83D\uDCE5'} CSV exportieren</button>
           <button className="btn btn-primary" onClick={handleExportJSON}>{'\uD83D\uDCE5'} JSON exportieren</button>
           <button className="btn btn-secondary" onClick={handleImportCSV}>{'\uD83D\uDCE4'} CSV importieren</button>
           <button className="btn btn-secondary" onClick={handleImportJSON}>{'\uD83D\uDCE4'} JSON importieren</button>
+          <button
+            className="btn btn-danger"
+            onClick={() => setConfirm({
+              title: 'Alle Stammdaten löschen?',
+              message: `Es werden ${children.length} Kinder und alle Gruppen unwiderruflich gelöscht. Die Gruppen werden auf die Standardgruppen zurückgesetzt.`,
+              confirmLabel: 'Endgültig löschen',
+              onConfirm: handleDeleteAllChildren,
+            })}
+            disabled={children.length === 0}
+          >
+            {'\uD83D\uDDD1'} Alle löschen ({children.length} Kinder)
+          </button>
         </div>
         <div style={{ fontSize: 11, color: '#9CA3AF' }}>
           CSV-Format: Name;Gruppe;BUT;Zahlungspflichtiger;Adresse;Kassenzeichen (Semikolon-getrennt)
@@ -299,8 +305,13 @@ export default function Administration({ children, activeChildren, gruppen, setC
       </Section>
 
       <Section title="Bewegungsdaten Import / Export" icon={'\uD83D\uDCCA'}>
+        <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 12, lineHeight: 1.6 }}>
+          Exportiere oder importiere Essensdaten. Bewegungsdaten enthalten Gerichtauswahl, Preise und Abmeldungen.
+        </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+          <button className="btn btn-primary" onClick={handleExportMealsCSV}>{'\uD83D\uDCE5'} CSV exportieren</button>
           <button className="btn btn-primary" onClick={handleExportMeals}>{'\uD83D\uDCE5'} JSON exportieren</button>
+          <button className="btn btn-secondary" onClick={handleImportMealsCSV}>{'\uD83D\uDCE4'} CSV importieren</button>
           <button className="btn btn-secondary" onClick={handleImportMeals}>{'\uD83D\uDCE4'} JSON importieren</button>
           <button
             className="btn btn-danger"
@@ -314,6 +325,9 @@ export default function Administration({ children, activeChildren, gruppen, setC
           >
             {'\uD83D\uDDD1'} Alle löschen ({mealKeyCount} Monate)
           </button>
+        </div>
+        <div style={{ fontSize: 11, color: '#9CA3AF' }}>
+          CSV-Format: Datum;Name;Gericht;Preis;Abgemeldet;Grund (Semikolon-getrennt)
         </div>
       </Section>
 
@@ -356,9 +370,62 @@ export default function Administration({ children, activeChildren, gruppen, setC
             {'\uD83D\uDD04'} Backup wiederherstellen
           </button>
         </div>
+        <div style={{ borderTop: '1px solid #E5E1DA', marginTop: 16, paddingTop: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Automatisches Backup</div>
+          {!isElectronBackup ? (
+            <div style={{ fontSize: 13, color: '#9CA3AF', fontStyle: 'italic' }}>
+              Automatische Backups sind nur in der Desktop-Version verfügbar.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '10px 16px', alignItems: 'center', fontSize: 13 }}>
+              <span style={{ color: '#6B7280' }}>Aktiviert:</span>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={backupSettings.enabled}
+                  onChange={(e) => updateBackupSettings({ enabled: e.target.checked })}
+                  style={{ width: 16, height: 16, accentColor: '#2D9F93' }}
+                />
+                <span>{backupSettings.enabled ? 'Ja' : 'Nein'}</span>
+              </label>
+              <span style={{ color: '#6B7280' }}>Intervall:</span>
+              <select className="input" style={{ width: 160 }} value={backupSettings.interval} onChange={(e) => updateBackupSettings({ interval: e.target.value })}>
+                <option value="daily">Täglich</option>
+                <option value="weekly">Wöchentlich</option>
+                <option value="monthly">Monatlich</option>
+              </select>
+              <span style={{ color: '#6B7280' }}>Backup-Ordner:</span>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button className="btn btn-secondary" onClick={pickFolder}>Ordner wählen</button>
+                <span style={{ fontSize: 11, fontFamily: 'monospace', wordBreak: 'break-all', color: backupSettings.folderPath ? '#1F2937' : '#9CA3AF' }}>
+                  {backupSettings.folderPath || 'Kein Ordner ausgewählt'}
+                </span>
+              </div>
+              <span style={{ color: '#6B7280' }}>Max. Backups:</span>
+              <input
+                type="number"
+                className="input"
+                style={{ width: 60 }}
+                min={1}
+                max={100}
+                value={backupSettings.maxBackups}
+                onChange={(e) => updateBackupSettings({ maxBackups: Math.max(1, Math.min(100, +e.target.value)) })}
+              />
+              <span style={{ color: '#6B7280' }}>Letztes Backup:</span>
+              <span style={{ fontWeight: 600 }}>
+                {backupSettings.lastBackupDate
+                  ? new Date(backupSettings.lastBackupDate).toLocaleString('de-DE')
+                  : 'Noch kein Backup erstellt'}
+              </span>
+            </div>
+          )}
+        </div>
       </Section>
 
       <Section title="System-Info" icon={'\u2139\uFE0F'}>
+        <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 12, lineHeight: 1.6 }}>
+          Übersicht über die aktuelle Konfiguration und Datenlage.
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '8px 16px', fontSize: 13 }}>
           <span style={{ color: '#6B7280' }}>Version:</span>
           <span style={{ fontWeight: 600 }}>v{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '?'}</span>

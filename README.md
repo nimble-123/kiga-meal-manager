@@ -7,15 +7,17 @@ Desktop-Anwendung zur täglichen Erfassung der Essenskosten im Kindergarten "KiG
 - **Tageserfassung** - Essenauswahl pro Kind mit Preiseingabe pro Gericht (A-E), automatische 2-Nachkommastellen-Formatierung
 - **Monatsübersicht** - Zusammenfassung aller Essen und Kosten pro Kind mit Aufschlüsselung nach Gerichttyp
 - **Jahresübersicht** - 12-Monats-Matrix mit Gesamtkosten und Essen-Breakdown
-- **Stammdaten** - Kinder verwalten (hinzufügen, bearbeiten, aktivieren/deaktivieren)
+- **Stammdaten** - Kinder verwalten (hinzufügen, bearbeiten, löschen, aktivieren/deaktivieren) mit sortierbaren Spalten und integrierter Gruppenverwaltung
 - **Auswertung** - 6 interaktive Charts: Preisentwicklung, Monatskosten, Teilnahmequote, Essenverteilung, Gruppenvergleich, BUT-Anteil
-- **Verwaltung** - CSV/JSON Import/Export, Gruppenverwaltung, Testdaten-Generator, Vollbackup/Restore
+- **Verwaltung** - CSV/JSON Import/Export für Stamm- und Bewegungsdaten, Testdaten-Generator, Vollbackup/Restore, automatisches periodisches Backup
 - **Gruppenfilter** - Alle Views nach Kindergartengruppe filterbar
 - **Sortierbare Tabellen** - Alle Tabellen per Klick auf Spaltenheader sortierbar
 - **CSV-Export** - Monats- und Jahresberichte als CSV-Datei exportieren
 - **E-Mail-Versand** - Monatsbericht als E-Mail mit CSV-Anhang versenden
 - **Ferien/Schließtage** - An Schließtagen wird die Essensauswahl automatisch gesperrt
 - **Tooltips** - Kontextbezogene Hilfe auf Buttons und Bedienelementen
+- **Geführte Tour** - Interaktives Tutorial beim ersten Start, jederzeit über Help-Button wiederholbar
+- **Sicherheitsabfragen** - Bestätigungsdialoge bei allen destruktiven Aktionen (Löschen, Überschreiben)
 
 ## Tech-Stack
 
@@ -25,6 +27,7 @@ Desktop-Anwendung zur täglichen Erfassung der Essenskosten im Kindergarten "KiG
 | Frontend | React 19, Vite 8 |
 | Styling | Tailwind CSS 4, Inline-Styles |
 | Charts | recharts |
+| Guided Tour | driver.js |
 | Datenspeicherung | electron-store (lokale JSON-Datei) |
 | CSV-Handling | papaparse |
 | Build/Packaging | electron-builder |
@@ -64,9 +67,9 @@ npm run test:watch
 
 | Test-Art | Tool | Verzeichnis | Anzahl |
 |---|---|---|---|
-| Unit Tests | Vitest | `tests/unit/` | 23 |
-| Integration Tests | Vitest + React Testing Library | `tests/integration/` | 12 |
-| E2E Tests | Playwright | `e2e/` | 25 |
+| Unit Tests | Vitest | `tests/unit/` | 38 |
+| Integration Tests | Vitest + React Testing Library | `tests/integration/` | 32 |
+| E2E Tests | Playwright | `e2e/` | 37 |
 
 ## CI/CD
 
@@ -126,10 +129,11 @@ Erstellt im Ordner `release/` eine DMG-Datei (`KiGa Essenverwaltung-X.X.X.dmg`).
 
 ## Erststart
 
-Beim ersten Start ist die App leer. Es gibt zwei Wege, Daten zu laden:
+Beim ersten Start ist die App leer. Eine **geführte Tour** startet automatisch und zeigt alle Bereiche der App. Danach gibt es drei Wege, Daten zu laden:
 
 1. **CSV importieren** - Die mitgelieferte Sample-Datei `data/sample/kinder.csv` enthält Beispieldaten
 2. **Manuell anlegen** - Kinder einzeln über das Stammdaten-Formular erfassen
+3. **App-Tour starten** - Die Tour kann jederzeit über den **?**-Button im Header erneut gestartet werden
 
 Im **Verwaltung**-Tab können zusätzlich Testdaten für vergangene Monate generiert werden, um die Auswertungen zu testen.
 

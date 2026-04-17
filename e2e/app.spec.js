@@ -11,6 +11,7 @@ async function seedData(page) {
     const gruppen = ['Delfin', 'Dino'];
     localStorage.setItem('children', JSON.stringify(children));
     localStorage.setItem('gruppen', JSON.stringify(gruppen));
+    localStorage.setItem('tourCompleted', JSON.stringify(true));
   });
 }
 
@@ -31,7 +32,7 @@ test.describe('Empty State', () => {
   test('other tabs are accessible from empty state', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: /Verwaltung/ }).click();
-    await expect(page.getByText('Gruppen verwalten')).toBeVisible();
+    await expect(page.getByText('Stammdaten Import / Export')).toBeVisible();
   });
 });
 
@@ -89,15 +90,46 @@ test.describe('Stammdaten', () => {
     await expect(page.getByText('Testmann, Max')).toBeVisible();
   });
 
-  test('has link to group management', async ({ page }) => {
-    await expect(page.getByText('Gruppen verwalten →')).toBeVisible();
+  test('has inline group management', async ({ page }) => {
+    await page.getByText('Gruppen verwalten').click();
+    await expect(page.getByPlaceholder('Neue Gruppe...')).toBeVisible();
+    // Groups are shown as badges inside the Gruppen panel
+    await expect(page.locator('.inline-block', { hasText: 'Delfin' }).first()).toBeVisible();
+    await expect(page.locator('.inline-block', { hasText: 'Dino' }).first()).toBeVisible();
   });
 
-  test('sortable table headers work on Monatsübersicht', async ({ page }) => {
-    // Navigate to Monatsübersicht which has SortHeaders
-    await page.getByRole('button', { name: /Monatsübersicht/ }).click();
+  test('can add a new group in Stammdaten', async ({ page }) => {
+    await page.getByText('Gruppen verwalten').click();
+    await page.getByPlaceholder('Neue Gruppe...').fill('Pinguin');
+    await page.getByText('+ Hinzufügen').click();
+    await expect(page.locator('.inline-block', { hasText: 'Pinguin' })).toBeVisible();
+  });
+
+  test('sortable table headers work', async ({ page }) => {
+    // Click Name header to sort
     await page.locator('th.sortable').first().click();
     await expect(page.locator('.sort-indicator.active')).toBeVisible();
+  });
+
+  test('can delete a child with confirmation', async ({ page }) => {
+    // Click delete button on first child
+    await page.locator('[data-tooltip="Löschen"]').first().click();
+    await expect(page.getByText('Kind löschen')).toBeVisible();
+    await expect(page.getByText(/unwiderruflich löschen/)).toBeVisible();
+
+    // Cancel first
+    await page.getByText('Abbrechen').click();
+    await expect(page.getByText('Kind löschen')).not.toBeVisible();
+
+    // Delete for real
+    await page.locator('[data-tooltip="Löschen"]').first().click();
+    await page.getByRole('button', { name: 'Löschen', exact: true }).click();
+    await expect(page.getByText('Kind löschen')).not.toBeVisible();
+  });
+
+  test('scrolls to top when editing', async ({ page }) => {
+    await page.locator('[data-tooltip="Bearbeiten"]').first().click();
+    await expect(page.getByText('Kind bearbeiten')).toBeVisible();
   });
 });
 
@@ -168,7 +200,6 @@ test.describe('Verwaltung', () => {
   });
 
   test('shows all admin sections', async ({ page }) => {
-    await expect(page.getByText('Gruppen verwalten')).toBeVisible();
     await expect(page.getByText('Stammdaten Import / Export')).toBeVisible();
     await expect(page.getByText('Bewegungsdaten Import / Export')).toBeVisible();
     await expect(page.getByText('Testdaten generieren')).toBeVisible();
@@ -176,10 +207,9 @@ test.describe('Verwaltung', () => {
     await expect(page.getByText('System-Info')).toBeVisible();
   });
 
-  test('can add a new group', async ({ page }) => {
-    await page.getByPlaceholder('Neue Gruppe...').fill('TestGruppe');
-    await page.getByText('+ Hinzufügen').click();
-    await expect(page.getByText('TestGruppe')).toBeVisible();
+  test('shows description texts in panels', async ({ page }) => {
+    // Stammdaten section is defaultOpen
+    await expect(page.getByText('Exportiere oder importiere Kinderdaten')).toBeVisible();
   });
 
   test('shows system info when expanded', async ({ page }) => {
@@ -188,10 +218,34 @@ test.describe('Verwaltung', () => {
     await expect(page.getByText('Kinder (gesamt / aktiv):')).toBeVisible();
   });
 
-  test('can expand stammdaten section', async ({ page }) => {
-    await page.getByText('Stammdaten Import / Export').click();
-    await expect(page.getByText('CSV exportieren')).toBeVisible();
-    await expect(page.getByText('JSON exportieren')).toBeVisible();
+  test('stammdaten section shows CSV and JSON buttons', async ({ page }) => {
+    // Stammdaten is now defaultOpen
+    await expect(page.getByText('CSV exportieren').first()).toBeVisible();
+    await expect(page.getByText('JSON exportieren').first()).toBeVisible();
+  });
+
+  test('shows "Alle löschen" button for Stammdaten', async ({ page }) => {
+    await expect(page.getByText(/Alle löschen.*Kinder/)).toBeVisible();
+  });
+
+  test('bewegungsdaten section has CSV and JSON buttons', async ({ page }) => {
+    await page.getByText('Bewegungsdaten Import / Export').click();
+    await expect(page.getByText('CSV exportieren').first()).toBeVisible();
+    await expect(page.getByText('JSON exportieren').first()).toBeVisible();
+    await expect(page.getByText('CSV importieren').first()).toBeVisible();
+    await expect(page.getByText('JSON importieren').first()).toBeVisible();
+  });
+
+  test('bewegungsdaten shows CSV format hint', async ({ page }) => {
+    await page.getByText('Bewegungsdaten Import / Export').click();
+    await expect(page.getByText(/Datum;Name;Gericht;Preis/)).toBeVisible();
+  });
+
+  test('backup section shows auto-backup settings', async ({ page }) => {
+    await page.getByText('Backup / Restore').click();
+    await expect(page.getByText('Automatisches Backup')).toBeVisible();
+    // In browser mode, auto-backup is not available
+    await expect(page.getByText(/Desktop-Version/)).toBeVisible();
   });
 });
 
@@ -208,7 +262,7 @@ test.describe('Keyboard Shortcuts', () => {
 
     // Ctrl+6 → Verwaltung
     await page.keyboard.press('Control+6');
-    await expect(page.getByText('Gruppen verwalten')).toBeVisible();
+    await expect(page.getByText('Stammdaten Import / Export')).toBeVisible();
 
     // Ctrl+1 → back to Tageserfassung
     await page.keyboard.press('Control+1');
@@ -220,5 +274,64 @@ test.describe('Version Info', () => {
   test('shows version in header', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText(/Essenverwaltung v/)).toBeVisible();
+  });
+});
+
+test.describe('App Tour', () => {
+  test('shows help button in header', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#tour-help-btn')).toBeVisible();
+  });
+
+  test('shows tour button in empty state', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('App-Tour starten')).toBeVisible();
+  });
+
+  test('tour starts when clicking help button', async ({ page }) => {
+    await page.goto('/');
+    await seedData(page);
+    await page.reload();
+    // Mark tour as completed to prevent auto-start
+    await page.evaluate(() => localStorage.setItem('tourCompleted', 'true'));
+    await page.reload();
+
+    await page.locator('#tour-help-btn').click();
+    await expect(page.locator('.driver-popover')).toBeVisible();
+    await expect(page.getByText('Willkommen bei KiGa Essenverwaltung!')).toBeVisible();
+  });
+
+  test('tour can be skipped', async ({ page }) => {
+    await page.goto('/');
+    await seedData(page);
+    await page.reload();
+    await page.evaluate(() => localStorage.setItem('tourCompleted', 'true'));
+    await page.reload();
+
+    await page.locator('#tour-help-btn').click();
+    await expect(page.locator('.driver-popover')).toBeVisible();
+
+    // Close/skip the tour
+    await page.locator('.driver-popover-close-btn').click();
+    await expect(page.locator('.driver-popover')).not.toBeVisible();
+  });
+
+  test('tour navigates through steps', async ({ page }) => {
+    await page.goto('/');
+    await seedData(page);
+    await page.reload();
+    await page.evaluate(() => localStorage.setItem('tourCompleted', 'true'));
+    await page.reload();
+
+    await page.locator('#tour-help-btn').click();
+    await expect(page.getByText('Willkommen bei KiGa Essenverwaltung!')).toBeVisible();
+
+    // Click Next
+    await page.getByText('Weiter').click();
+    await expect(page.getByText('Navigation')).toBeVisible();
+
+    // Click Next again
+    await page.getByText('Weiter').click();
+    await expect(page.locator('.driver-popover-title', { hasText: 'Tageserfassung' })).toBeVisible();
   });
 });

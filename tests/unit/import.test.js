@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseChildrenCSV, parseChildrenJSON, exportChildrenCSV, parseGruppenCSV, parseMealsJSON } from '../../src/utils/import';
+import { parseChildrenCSV, parseChildrenJSON, exportChildrenCSV, parseGruppenCSV, parseMealsJSON, exportMealsCSV, parseMealsCSV } from '../../src/utils/import';
 
 describe('parseChildrenCSV', () => {
   it('parses a valid CSV string', () => {
@@ -74,5 +74,101 @@ describe('parseMealsJSON', () => {
     const { meals, count } = parseMealsJSON(json);
     expect(count).toBe(2);
     expect(meals['meals-2026-01']).toBeDefined();
+  });
+});
+
+describe('exportMealsCSV', () => {
+  it('exports meals as semicolon-delimited CSV', () => {
+    const meals = {
+      'meals-2026-01': {
+        '2026-01-05': {
+          prices: { A: 3.5, B: 4 },
+          selections: { c1: 'A', c2: 'B' },
+          abmeldungen: {},
+        },
+      },
+    };
+    const children = [
+      { id: 'c1', name: 'Müller, Emma' },
+      { id: 'c2', name: 'Fischer, Lian' },
+    ];
+    const csv = exportMealsCSV(meals, children);
+    expect(csv).toContain('Datum;Name;Gericht;Preis;Abgemeldet;Grund');
+    expect(csv).toContain('2026-01-05;Fischer, Lian;B;4;;');
+    expect(csv).toContain('2026-01-05;Müller, Emma;A;3.5;;');
+  });
+
+  it('exports abmeldungen correctly', () => {
+    const meals = {
+      'meals-2026-01': {
+        '2026-01-05': {
+          prices: { A: 3.5 },
+          selections: {},
+          abmeldungen: { c1: { active: true, grund: 'krank' } },
+        },
+      },
+    };
+    const children = [{ id: 'c1', name: 'Test, Kind' }];
+    const csv = exportMealsCSV(meals, children);
+    expect(csv).toContain('2026-01-05;Test, Kind;;;Ja;krank');
+  });
+
+  it('prioritizes abmeldung over selection', () => {
+    const meals = {
+      'meals-2026-01': {
+        '2026-01-05': {
+          prices: { A: 3.5 },
+          selections: { c1: 'A' },
+          abmeldungen: { c1: { active: true, grund: 'krank' } },
+        },
+      },
+    };
+    const children = [{ id: 'c1', name: 'Test, Kind' }];
+    const csv = exportMealsCSV(meals, children);
+    expect(csv).toContain('Ja;krank');
+    expect(csv).not.toContain(';A;3.5');
+  });
+});
+
+describe('parseMealsCSV', () => {
+  it('parses valid meals CSV', () => {
+    const csv = 'Datum;Name;Gericht;Preis;Abgemeldet;Grund\n2026-01-05;Müller, Emma;A;3,50;;\n2026-01-05;Fischer, Lian;B;4,00;;';
+    const children = [
+      { id: 'c1', name: 'Müller, Emma' },
+      { id: 'c2', name: 'Fischer, Lian' },
+    ];
+    const { meals, errors, count } = parseMealsCSV(csv, children);
+    expect(errors).toHaveLength(0);
+    expect(count).toBe(1);
+    expect(meals['meals-2026-01']['2026-01-05'].selections.c1).toBe('A');
+    expect(meals['meals-2026-01']['2026-01-05'].selections.c2).toBe('B');
+    expect(meals['meals-2026-01']['2026-01-05'].prices.A).toBe(3.5);
+  });
+
+  it('parses abmeldungen', () => {
+    const csv = 'Datum;Name;Gericht;Preis;Abgemeldet;Grund\n2026-01-05;Test, Kind;;;Ja;krank';
+    const children = [{ id: 'c1', name: 'Test, Kind' }];
+    const { meals } = parseMealsCSV(csv, children);
+    expect(meals['meals-2026-01']['2026-01-05'].abmeldungen.c1).toEqual({ active: true, grund: 'krank' });
+  });
+
+  it('reports error for unknown child name', () => {
+    const csv = 'Datum;Name;Gericht;Preis;Abgemeldet;Grund\n2026-01-05;Unbekannt;A;3,50;;';
+    const { errors } = parseMealsCSV(csv, []);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0]).toContain('nicht gefunden');
+  });
+
+  it('roundtrips with exportMealsCSV', () => {
+    const original = {
+      'meals-2026-01': {
+        '2026-01-05': { prices: { A: 3.5 }, selections: { c1: 'A' }, abmeldungen: {} },
+      },
+    };
+    const children = [{ id: 'c1', name: 'Test, Kind' }];
+    const csv = exportMealsCSV(original, children);
+    const { meals } = parseMealsCSV(csv, children);
+    expect(meals['meals-2026-01']['2026-01-05'].selections.c1).toBe('A');
+    expect(meals['meals-2026-01']['2026-01-05'].prices.A).toBe(3.5);
   });
 });

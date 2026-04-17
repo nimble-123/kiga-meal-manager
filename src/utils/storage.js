@@ -52,6 +52,34 @@ export async function storageGetPath() {
   }
 }
 
+export async function selectDirectory() {
+  try {
+    if (window.api?.selectDirectory) return await window.api.selectDirectory();
+    return { success: false, error: 'Nur in Electron verfügbar' };
+  } catch { return { success: false }; }
+}
+
+export async function saveFileToPath(filePath, content) {
+  try {
+    if (window.api?.saveFileToPath) return await window.api.saveFileToPath({ filePath, content });
+    return { success: false, error: 'Nur in Electron verfügbar' };
+  } catch { return { success: false }; }
+}
+
+export async function listFiles(dirPath) {
+  try {
+    if (window.api?.listFiles) return await window.api.listFiles({ dirPath });
+    return { success: false, files: [] };
+  } catch { return { success: false, files: [] }; }
+}
+
+export async function deleteFile(filePath) {
+  try {
+    if (window.api?.deleteFile) return await window.api.deleteFile({ filePath });
+    return { success: false };
+  } catch { return { success: false }; }
+}
+
 export async function openFile(filters) {
   try {
     if (window.api?.openFile) return await window.api.openFile({ filters });

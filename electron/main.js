@@ -153,6 +153,55 @@ ipcMain.handle('send-email-with-csv', async (_, { subject, body, csvFilename, cs
   }
 });
 
+// Ordner auswählen (für Auto-Backup)
+ipcMain.handle('select-directory', async () => {
+  const { dialog } = require('electron');
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory', 'createDirectory'],
+  });
+  if (!result.canceled && result.filePaths.length > 0) {
+    return { success: true, path: result.filePaths[0] };
+  }
+  return { success: false };
+});
+
+// Datei direkt an Pfad speichern (ohne Dialog)
+ipcMain.handle('save-file-to-path', async (_, { filePath, content }) => {
+  const fs = require('fs');
+  try {
+    fs.writeFileSync(filePath, content, 'utf-8');
+    return { success: true, path: filePath };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+// Dateien in Verzeichnis auflisten
+ipcMain.handle('list-files', async (_, { dirPath }) => {
+  const fs = require('fs');
+  try {
+    const files = fs.readdirSync(dirPath).map((name) => {
+      const fullPath = path.join(dirPath, name);
+      const stat = fs.statSync(fullPath);
+      return { name, path: fullPath, mtime: stat.mtime.toISOString(), size: stat.size };
+    });
+    return { success: true, files };
+  } catch (e) {
+    return { success: false, error: e.message, files: [] };
+  }
+});
+
+// Datei löschen
+ipcMain.handle('delete-file', async (_, { filePath }) => {
+  const fs = require('fs');
+  try {
+    fs.unlinkSync(filePath);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
 // Rückwärtskompatibel: einfache E-Mail ohne Anhang
 ipcMain.handle('open-email', (_, { subject, body }) => {
   const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;

@@ -9,6 +9,7 @@ import Administration from './components/Administration';
 import EmptyState from './components/EmptyState';
 import { useChildren } from './hooks/useChildren';
 import { useMeals } from './hooks/useMeals';
+import { useTour } from './hooks/useTour';
 
 const TAB_IDS = ['daily', 'stamm', 'month', 'year', 'analytics', 'admin'];
 
@@ -19,8 +20,22 @@ export default function App() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [gruppeFilter, setGruppeFilter] = useState('Alle');
 
-  const { children, activeChildren, gruppen, loading, saveIndicator, addChild, updateChild, setChildrenBulk, setGruppenBulk, addGruppe, removeGruppe, renameGruppe } = useChildren();
+  const { children, activeChildren, gruppen, loading, saveIndicator, addChild, updateChild, deleteChild, setChildrenBulk, setGruppenBulk, addGruppe, removeGruppe, renameGruppe } = useChildren();
   const { todayData, setTodayPrices, setTodaySelection, setTodayAbmeldung, getMonthSummary } = useMeals(selectedDate, activeChildren);
+  const { startTour, checkFirstUse } = useTour();
+
+  const handleStartTour = useCallback(() => startTour(setTab), [startTour]);
+
+  // Auto-start tour on first use
+  useEffect(() => {
+    if (loading) return;
+    checkFirstUse().then((isFirstUse) => {
+      if (isFirstUse) {
+        // Small delay so the UI is fully rendered
+        setTimeout(() => startTour(setTab), 500);
+      }
+    });
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredChildren = useMemo(() => {
     let list = tab === 'stamm' ? children : activeChildren;
@@ -65,11 +80,11 @@ export default function App() {
     <div style={{ background: '#FAF7F2', fontFamily: '-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif', minHeight: '100vh', color: '#1F2937' }}>
       {saveIndicator && <div className="save-dot">{'\u2713'} Gespeichert</div>}
 
-      <Header tab={tab} setTab={setTab} activeCount={activeChildren.length} />
+      <Header tab={tab} setTab={setTab} activeCount={activeChildren.length} onStartTour={handleStartTour} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 24px' }}>
         {isEmpty && tab === 'daily' ? (
-          <EmptyState onImport={handleEmptyImport} onAddChild={handleEmptyAddChild} />
+          <EmptyState onImport={handleEmptyImport} onAddChild={handleEmptyAddChild} onStartTour={handleStartTour} />
         ) : (
           <>
             {tab === 'daily' && (
@@ -95,7 +110,10 @@ export default function App() {
                 gruppen={gruppen}
                 addChild={addChild}
                 updateChild={updateChild}
-                setTab={setTab}
+                deleteChild={deleteChild}
+                addGruppe={addGruppe}
+                removeGruppe={removeGruppe}
+                children={children}
               />
             )}
 
@@ -143,9 +161,6 @@ export default function App() {
                 gruppen={gruppen}
                 setChildrenBulk={setChildrenBulk}
                 setGruppenBulk={setGruppenBulk}
-                addGruppe={addGruppe}
-                removeGruppe={removeGruppe}
-                renameGruppe={renameGruppe}
               />
             )}
           </>

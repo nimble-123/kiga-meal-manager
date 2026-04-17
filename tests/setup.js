@@ -16,6 +16,10 @@ window.api = {
   openFile: vi.fn(async () => ({ success: false })),
   openEmail: vi.fn(),
   sendEmailWithCSV: vi.fn(),
+  selectDirectory: vi.fn(async () => ({ success: false })),
+  saveFileToPath: vi.fn(async () => ({ success: true })),
+  listFiles: vi.fn(async () => ({ success: true, files: [] })),
+  deleteFile: vi.fn(async () => ({ success: true })),
 };
 
 // Helper to reset store between tests
