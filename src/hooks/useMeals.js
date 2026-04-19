@@ -41,6 +41,13 @@ export function useMeals(selectedDate, activeChildren) {
     saveDailyData(nd);
   };
 
+  const setBulkTodaySelection = (entries) => {
+    const nd = { ...dailyData };
+    if (!nd[selectedDate]) nd[selectedDate] = { prices: {}, selections: {}, abmeldungen: {} };
+    nd[selectedDate] = { ...nd[selectedDate], selections: { ...nd[selectedDate].selections, ...entries } };
+    saveDailyData(nd);
+  };
+
   const setTodayAbmeldung = (childId, abmeldung) => {
     const nd = { ...dailyData };
     if (!nd[selectedDate]) nd[selectedDate] = { prices: {}, selections: {}, abmeldungen: {} };
@@ -79,5 +86,5 @@ export function useMeals(selectedDate, activeChildren) {
     [activeChildren, dailyData, selectedDate]
   );
 
-  return { dailyData, todayData, setTodayPrices, setTodaySelection, setTodayAbmeldung, getMonthSummary };
+  return { dailyData, todayData, setTodayPrices, setTodaySelection, setBulkTodaySelection, setTodayAbmeldung, getMonthSummary };
 }

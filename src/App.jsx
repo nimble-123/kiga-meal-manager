@@ -21,7 +21,7 @@ export default function App() {
   const [gruppeFilter, setGruppeFilter] = useState('Alle');
 
   const { children, activeChildren, gruppen, loading, saveIndicator, addChild, updateChild, deleteChild, setChildrenBulk, setGruppenBulk, addGruppe, removeGruppe, renameGruppe } = useChildren();
-  const { todayData, setTodayPrices, setTodaySelection, setTodayAbmeldung, getMonthSummary } = useMeals(selectedDate, activeChildren);
+  const { todayData, setTodayPrices, setTodaySelection, setBulkTodaySelection, setTodayAbmeldung, getMonthSummary } = useMeals(selectedDate, activeChildren);
   const { startTour, checkFirstUse } = useTour();
 
   const handleStartTour = useCallback(() => startTour(setTab), [startTour]);
@@ -98,6 +98,7 @@ export default function App() {
                 todayData={todayData}
                 setTodayPrices={setTodayPrices}
                 setTodaySelection={setTodaySelection}
+                setBulkTodaySelection={setBulkTodaySelection}
                 setTodayAbmeldung={setTodayAbmeldung}
               />
             )}

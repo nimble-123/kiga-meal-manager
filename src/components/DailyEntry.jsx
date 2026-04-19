@@ -6,7 +6,7 @@ import { isClosedDay } from '../data/holidays';
 import { useSortableTable } from '../hooks/useSortableTable';
 import { getDailyBreakdown, BreakdownDisplay } from '../utils/mealBreakdown';
 
-export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter, setGruppeFilter, gruppen, filteredChildren, todayData, setTodayPrices, setTodaySelection, setTodayAbmeldung }) {
+export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter, setGruppeFilter, gruppen, filteredChildren, todayData, setTodayPrices, setTodaySelection, setBulkTodaySelection, setTodayAbmeldung }) {
   const isClosed = isClosedDay(selectedDate);
   const dateObj = new Date(selectedDate + 'T12:00:00');
 
@@ -15,6 +15,14 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
   const getPrice = (c) => {
     const sel = todayData.selections?.[c.id] || '';
     return sel && todayData.prices?.[sel] ? parseFloat(todayData.prices[sel]) : 0;
+  };
+
+  const handleBulkAssign = (gericht) => {
+    const eligible = filteredChildren.filter((c) => !todayData.abmeldungen?.[c.id]?.active);
+    const allHaveThisMeal = eligible.length > 0 && eligible.every((c) => todayData.selections?.[c.id] === gericht);
+    const entries = {};
+    eligible.forEach((c) => { entries[c.id] = allHaveThisMeal ? '' : gericht; });
+    setBulkTodaySelection(entries);
   };
 
   const totalCount = filteredChildren.filter((c) => todayData.selections?.[c.id]).length;
@@ -76,7 +84,38 @@ export default function DailyEntry({ selectedDate, setSelectedDate, gruppeFilter
               <SortHeader column="name" label="Name" sortConfig={sortConfig} onSort={requestSort} />
               <SortHeader column="gruppe" label="Gruppe" sortConfig={sortConfig} onSort={requestSort} />
               <th>Hinweise</th>
-              <th style={{ textAlign: 'center' }}>Gericht</th>
+              <th style={{ textAlign: 'center' }}>
+                {isClosed ? (
+                  'Gericht'
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <span>Gericht</span>
+                    <div style={{ display: 'flex', gap: 3 }}>
+                      {GERICHTE.map((g) => {
+                        const hasPrice = todayData.prices?.[g] > 0;
+                        const eligible = filteredChildren.filter((c) => !todayData.abmeldungen?.[c.id]?.active);
+                        const allSelected = eligible.length > 0 && eligible.every((c) => todayData.selections?.[c.id] === g);
+                        return (
+                          <button
+                            key={g}
+                            className={`meal-btn ${allSelected ? 'active' : ''}`}
+                            style={{
+                              width: 28, height: 22, fontSize: 10,
+                              ...(allSelected
+                                ? { background: GERICHT_COLORS[g], borderColor: GERICHT_COLORS[g] }
+                                : hasPrice ? { opacity: 0.7 } : { opacity: 0.3, cursor: 'default' }),
+                            }}
+                            onClick={(e) => { e.stopPropagation(); if (hasPrice) handleBulkAssign(g); }}
+                            data-tooltip={hasPrice ? `Gericht ${g} ${allSelected ? 'von allen entfernen' : 'an alle zuweisen'}` : `Gericht ${g} \u2013 kein Preis`}
+                          >
+                            {g}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </th>
               <th style={{ textAlign: 'center', width: 40 }} data-tooltip="Abmeldung">Abm.</th>
               <th style={{ width: 120 }}>Grund</th>
               <SortHeader column="betrag" label="Betrag" sortConfig={sortConfig} onSort={requestSort} style={{ textAlign: 'right' }} accessor={getPrice} />

@@ -4,7 +4,7 @@ Desktop-Anwendung zur täglichen Erfassung der Essenskosten im Kindergarten "KiG
 
 ## Features
 
-- **Tageserfassung** - Essenauswahl pro Kind mit Preiseingabe pro Gericht (A-E), automatische 2-Nachkommastellen-Formatierung
+- **Tageserfassung** - Essenauswahl pro Kind mit Preiseingabe pro Gericht (A-E), automatische 2-Nachkommastellen-Formatierung, Bulk-Zuweisung eines Gerichts an alle sichtbaren Kinder per Header-Button
 - **Monatsübersicht** - Zusammenfassung aller Essen und Kosten pro Kind mit Aufschlüsselung nach Gerichttyp
 - **Jahresübersicht** - 12-Monats-Matrix mit Gesamtkosten und Essen-Breakdown
 - **Stammdaten** - Kinder verwalten (hinzufügen, bearbeiten, löschen, aktivieren/deaktivieren) mit sortierbaren Spalten und integrierter Gruppenverwaltung
@@ -68,7 +68,7 @@ npm run test:watch
 | Test-Art | Tool | Verzeichnis | Anzahl |
 |---|---|---|---|
 | Unit Tests | Vitest | `tests/unit/` | 38 |
-| Integration Tests | Vitest + React Testing Library | `tests/integration/` | 32 |
+| Integration Tests | Vitest + React Testing Library | `tests/integration/` | 40 |
 | E2E Tests | Playwright | `e2e/` | 37 |
 
 ## CI/CD

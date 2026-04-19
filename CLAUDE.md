@@ -22,7 +22,7 @@ src/
   main.jsx             React Entry Point
   components/
     Header.jsx         Navigation Header mit Version + 6 Tabs + Help-Button
-    DailyEntry.jsx     Tageserfassung (Essenauswahl + Abmeldung pro Kind/Tag)
+    DailyEntry.jsx     Tageserfassung (Essenauswahl + Abmeldung pro Kind/Tag + Bulk-Zuweisung)
     MonthlyReport.jsx  Monatsübersicht (Zusammenfassung pro Kind)
     YearlyReport.jsx   Jahresübersicht (12-Monats-Matrix)
     Stammdaten.jsx     Kinderverwaltung + Gruppenverwaltung (sortierbar)
@@ -39,7 +39,7 @@ src/
       ConfirmDialog.jsx Modal-Dialog für destruktive Aktionen
   hooks/
     useChildren.js     Kinder- und Gruppen-CRUD + Persistenz + Bulk-Import
-    useMeals.js        Essens-Daten pro Tag/Monat (Preise + Auswahl + Abmeldungen + byMeal-Tracking)
+    useMeals.js        Essens-Daten pro Tag/Monat (Preise + Auswahl + Abmeldungen + byMeal-Tracking + Bulk-Zuweisung)
     useSortableTable.js Sortier-Hook für Tabellen (locale-aware, accessor-support)
     useAutoBackup.js   Automatisches periodisches Backup (Electron-only)
     useTour.js         Geführte App-Tour via driver.js
@@ -89,6 +89,7 @@ src/
 - **Erststart:** Leerer Store zeigt EmptyState mit Import-Option und Tour-Button. Sample-CSV in `data/sample/`.
 - **Geführte Tour:** driver.js-basierte Tour durch alle 6 Tabs. Startet automatisch beim Erststart, danach über Help-Button (?) im Header. Persistiert `tourCompleted` im Store.
 - **Auto-Backup:** Konfigurierbar im Backup-Panel (Intervall, Ordner, Max-Backups). Nur in Electron verfügbar. Settings unter `autoBackup` im Store.
+- **Bulk-Zuweisung:** Im Tageserfassungs-Header kleine A-E-Buttons zum Zuweisen eines Gerichts an alle sichtbaren, nicht-abgemeldeten Kinder. Toggle-Verhalten (erneuter Klick entfernt). Nutzt `setBulkTodaySelection()` in `useMeals.js` für einen einzelnen Storage-Schreibvorgang.
 - **ConfirmDialogs:** Alle destruktiven Aktionen (Kind/Gruppe/Stammdaten/Bewegungsdaten löschen, Backup wiederherstellen) zeigen ConfirmDialog.
 
 ## Wichtige Konventionen
