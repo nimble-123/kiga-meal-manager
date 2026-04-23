@@ -1,5 +1,9 @@
 appId: de.kiga-mitte.essenverwaltung
 productName: KiGa Essenverwaltung
+publish:
+  provider: github
+  owner: nimble-123
+  repo: kiga-meal-manager
 win:
   target:
     - nsis
@@ -12,6 +16,7 @@ nsis:
 mac:
   target:
     - dmg
+    - zip
   category: public.app-category.business
   icon: build/icon.icns
 files:

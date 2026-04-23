@@ -24,7 +24,7 @@ function Section({ title, icon, children, defaultOpen = false }) {
   );
 }
 
-export default function Administration({ children, activeChildren, gruppen, setChildrenBulk, setGruppenBulk }) {
+export default function Administration({ children, activeChildren, gruppen, setChildrenBulk, setGruppenBulk, update }) {
   const [importPreview, setImportPreview] = useState(null);
   const [importMode, setImportMode] = useState('replace');
   const [confirm, setConfirm] = useState(null);
@@ -439,6 +439,28 @@ export default function Administration({ children, activeChildren, gruppen, setC
             <>
               <span style={{ color: '#6B7280' }}>Speicherort:</span>
               <span style={{ fontSize: 11, fontFamily: 'monospace', wordBreak: 'break-all' }}>{storagePath}</span>
+            </>
+          )}
+          {update?.isElectron && (
+            <>
+              <span style={{ color: '#6B7280' }}>Update-Status:</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {update.status === 'checking' && <span style={{ color: '#6B7280' }}>Prüfe…</span>}
+                {update.status === 'up-to-date' && <span style={{ color: '#059669', fontWeight: 600 }}>Aktuell</span>}
+                {update.status === 'available' && <span style={{ color: '#D97706', fontWeight: 600 }}>v{update.updateInfo?.version} verfügbar</span>}
+                {update.status === 'downloading' && <span style={{ color: '#2D9F93', fontWeight: 600 }}>Wird heruntergeladen… {update.progress}%</span>}
+                {update.status === 'downloaded' && <span style={{ color: '#059669', fontWeight: 600 }}>v{update.updateInfo?.version} bereit</span>}
+                {update.status === 'error' && <span style={{ color: '#DC2626' }}>Fehler: {update.error}</span>}
+                {(update.status === 'idle' || update.status === 'up-to-date' || update.status === 'error') && (
+                  <button
+                    onClick={update.checkForUpdate}
+                    className="btn"
+                    style={{ padding: '2px 10px', fontSize: 11 }}
+                  >
+                    Nach Updates suchen
+                  </button>
+                )}
+              </span>
             </>
           )}
         </div>

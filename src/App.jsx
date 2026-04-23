@@ -10,6 +10,8 @@ import EmptyState from './components/EmptyState';
 import { useChildren } from './hooks/useChildren';
 import { useMeals } from './hooks/useMeals';
 import { useTour } from './hooks/useTour';
+import { useAutoUpdate } from './hooks/useAutoUpdate';
+import UpdateBanner from './components/UpdateBanner';
 
 const TAB_IDS = ['daily', 'stamm', 'month', 'year', 'analytics', 'admin'];
 
@@ -23,6 +25,7 @@ export default function App() {
   const { children, activeChildren, gruppen, loading, saveIndicator, addChild, updateChild, deleteChild, setChildrenBulk, setGruppenBulk, addGruppe, removeGruppe, renameGruppe } = useChildren();
   const { todayData, setTodayPrices, setTodaySelection, setBulkTodaySelection, setTodayAbmeldung, getMonthSummary } = useMeals(selectedDate, activeChildren);
   const { startTour, checkFirstUse } = useTour();
+  const update = useAutoUpdate();
 
   const handleStartTour = useCallback(() => startTour(setTab), [startTour]);
 
@@ -81,6 +84,7 @@ export default function App() {
       {saveIndicator && <div className="save-dot">{'\u2713'} Gespeichert</div>}
 
       <Header tab={tab} setTab={setTab} activeCount={activeChildren.length} onStartTour={handleStartTour} />
+      <UpdateBanner update={update} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 24px' }}>
         {isEmpty && tab === 'daily' ? (
@@ -162,6 +166,7 @@ export default function App() {
                 gruppen={gruppen}
                 setChildrenBulk={setChildrenBulk}
                 setGruppenBulk={setGruppenBulk}
+                update={update}
               />
             )}
           </>

@@ -5,6 +5,9 @@ release/
 .DS_Store
 Thumbs.db
 
+# Auto-updater dev config
+dev-app-update.yml
+
 # Test artifacts
 test-results/
 playwright-report/

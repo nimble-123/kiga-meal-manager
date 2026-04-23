@@ -18,6 +18,11 @@
   "build": {
     "appId": "de.kiga-mitte.essenverwaltung",
     "productName": "KiGa Essenverwaltung",
+    "publish": {
+      "provider": "github",
+      "owner": "nimble-123",
+      "repo": "kiga-meal-manager"
+    },
     "directories": {
       "output": "release"
     },
@@ -46,6 +51,7 @@
   "dependencies": {
     "driver.js": "^1.4.0",
     "electron-store": "^11.0.2",
+    "electron-updater": "^6.8.3",
     "papaparse": "^5.5.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

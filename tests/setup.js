@@ -20,6 +20,16 @@ window.api = {
   saveFileToPath: vi.fn(async () => ({ success: true })),
   listFiles: vi.fn(async () => ({ success: true, files: [] })),
   deleteFile: vi.fn(async () => ({ success: true })),
+  updater: {
+    check: vi.fn(async () => ({ success: true, version: '1.3.0' })),
+    download: vi.fn(async () => ({ success: true })),
+    install: vi.fn(),
+    onAvailable: vi.fn(() => () => {}),
+    onNotAvailable: vi.fn(() => () => {}),
+    onProgress: vi.fn(() => () => {}),
+    onDownloaded: vi.fn(() => () => {}),
+    onError: vi.fn(() => () => {}),
+  },
 };
 
 // Helper to reset store between tests

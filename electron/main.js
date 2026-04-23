@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const { initStore } = require('./store');
+const { setupAutoUpdater } = require('./updater');
 
 let mainWindow;
 
@@ -30,6 +31,10 @@ function createWindow() {
 app.whenReady().then(async () => {
   await initStore();
   createWindow();
+
+  const isProduction = process.env.NODE_ENV !== 'development';
+  const isPortable = !!process.env.PORTABLE_EXECUTABLE_DIR;
+  setupAutoUpdater(mainWindow, { enableAutoCheck: isProduction && !isPortable });
 });
 app.on('window-all-closed', () => app.quit());
 
