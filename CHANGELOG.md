@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0](https://github.com/nimble-123/kiga-meal-manager/compare/v1.3.0...v1.4.0) (2026-04-23)
+
+
+### Features
+
+* add auto-update mechanism via electron-updater ([c2a4b94](https://github.com/nimble-123/kiga-meal-manager/commit/c2a4b946a17faf26ed0c3b2c3ef8b5b22865d9da))
+* add bulk meal assignment in daily entry view ([0231b2c](https://github.com/nimble-123/kiga-meal-manager/commit/0231b2c71caed5201922da68a40257f531366a1a))
+
 ## [1.3.0](https://github.com/nimble-123/kiga-meal-manager/compare/v1.2.1...v1.3.0) (2026-04-17)
 
 
