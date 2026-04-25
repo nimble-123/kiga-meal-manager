@@ -21,7 +21,8 @@
     "publish": {
       "provider": "github",
       "owner": "nimble-123",
-      "repo": "kiga-meal-manager"
+      "repo": "kiga-meal-manager",
+      "releaseType": "release"
     },
     "directories": {
       "output": "release"
