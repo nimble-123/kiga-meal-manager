@@ -1,5 +1,18 @@
 // Zentrales Storage-Modul — Abstraktion über electron-store / localStorage
 
+const listeners = new Set();
+
+export function subscribeStorage(fn) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+function notifyStorage(key) {
+  listeners.forEach((fn) => {
+    try { fn(key); } catch { /* ignore listener errors */ }
+  });
+}
+
 export async function storageGet(key) {
   try {
     if (window.api?.store) return await window.api.store.get(key);
@@ -20,6 +33,7 @@ export async function storageSet(key, val) {
   } catch {
     /* ignore */
   }
+  notifyStorage(key);
 }
 
 export async function storageDelete(key) {
@@ -32,6 +46,7 @@ export async function storageDelete(key) {
   } catch {
     /* ignore */
   }
+  notifyStorage(key);
 }
 
 export async function storageKeys() {

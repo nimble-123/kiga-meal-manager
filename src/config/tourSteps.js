@@ -13,7 +13,7 @@ export function createTourSteps(setTab) {
       element: '#tour-tabs',
       popover: {
         title: 'Navigation',
-        description: 'Hier wechselst du zwischen den 6 Bereichen der App. Du kannst auch die Tastenkombinationen Strg+1 bis Strg+6 verwenden.',
+        description: 'Hier wechselst du zwischen den 7 Bereichen der App. Du kannst auch die Tastenkombinationen Strg+1 bis Strg+7 verwenden.',
         side: 'bottom',
       },
     },
@@ -67,6 +67,17 @@ export function createTourSteps(setTab) {
         description: 'Hier siehst du die Gesamtanzahl der Essen, die Aufschl\u00FCsselung nach Gerichttyp und den Tagesbetrag.',
         side: 'top',
       },
+    },
+
+    // Wochenerfassung
+    {
+      element: '#tour-tab-week',
+      popover: {
+        title: 'Wochenerfassung',
+        description: 'Trage einmal pro Woche im Voraus alle Essen ein \u2013 als Matrix Kinder \u00D7 Mo\u2013Fr. Spalten-Buttons weisen ein Gericht allen Kindern eines Tages zu, der \u201EVorwoche \u00FCbernehmen\u201C-Button kopiert die Auswahl der letzten Woche. Am Tag selbst zeigt der \u201EHeute\u201C-Modus eine Schnellansicht f\u00FCr Abmeldungen.',
+        side: 'bottom',
+      },
+      onHighlightStarted: () => setTab('week'),
     },
 
     // Stammdaten

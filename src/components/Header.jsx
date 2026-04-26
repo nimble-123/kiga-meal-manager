@@ -1,10 +1,11 @@
 const TABS = [
   { id: 'daily', label: 'Tageserfassung', icon: '\uD83D\uDCCB', tooltip: 'Tägliche Essenauswahl (Ctrl+1)' },
-  { id: 'stamm', label: 'Stammdaten', icon: '\uD83D\uDC67', tooltip: 'Kinder verwalten (Ctrl+2)' },
-  { id: 'month', label: 'Monatsübersicht', icon: '\uD83D\uDCC5', tooltip: 'Monatliche Abrechnung (Ctrl+3)' },
-  { id: 'year', label: 'Jahresübersicht', icon: '\uD83D\uDCC8', tooltip: 'Jahresübersicht (Ctrl+4)' },
-  { id: 'analytics', label: 'Auswertung', icon: '\uD83D\uDCCA', tooltip: 'Charts & Analysen (Ctrl+5)' },
-  { id: 'admin', label: 'Verwaltung', icon: '\u2699\uFE0F', tooltip: 'Import, Export & Einstellungen (Ctrl+6)' },
+  { id: 'week', label: 'Wochenerfassung', icon: '\uD83D\uDDD3\uFE0F', tooltip: 'Wochenplan eintragen (Ctrl+2)' },
+  { id: 'stamm', label: 'Stammdaten', icon: '\uD83D\uDC67', tooltip: 'Kinder verwalten (Ctrl+3)' },
+  { id: 'month', label: 'Monatsübersicht', icon: '\uD83D\uDCC5', tooltip: 'Monatliche Abrechnung (Ctrl+4)' },
+  { id: 'year', label: 'Jahresübersicht', icon: '\uD83D\uDCC8', tooltip: 'Jahresübersicht (Ctrl+5)' },
+  { id: 'analytics', label: 'Auswertung', icon: '\uD83D\uDCCA', tooltip: 'Charts & Analysen (Ctrl+6)' },
+  { id: 'admin', label: 'Verwaltung', icon: '\u2699\uFE0F', tooltip: 'Import, Export & Einstellungen (Ctrl+7)' },
 ];
 
 export default function Header({ tab, setTab, activeCount, onStartTour }) {

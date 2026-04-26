@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import DailyEntry from './components/DailyEntry';
+import WeeklyEntry from './components/WeeklyEntry';
 import Stammdaten from './components/Stammdaten';
 import MonthlyReport from './components/MonthlyReport';
 import YearlyReport from './components/YearlyReport';
@@ -9,21 +10,26 @@ import Administration from './components/Administration';
 import EmptyState from './components/EmptyState';
 import { useChildren } from './hooks/useChildren';
 import { useMeals } from './hooks/useMeals';
+import { useWeekMeals } from './hooks/useWeekMeals';
 import { useTour } from './hooks/useTour';
 import { useAutoUpdate } from './hooks/useAutoUpdate';
 import UpdateBanner from './components/UpdateBanner';
+import { getWeekMonday } from './utils/dates';
 
-const TAB_IDS = ['daily', 'stamm', 'month', 'year', 'analytics', 'admin'];
+const TAB_IDS = ['daily', 'week', 'stamm', 'month', 'year', 'analytics', 'admin'];
 
 export default function App() {
   const [tab, setTab] = useState('daily');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [weekAnchor, setWeekAnchor] = useState(new Date().toISOString().split('T')[0]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [gruppeFilter, setGruppeFilter] = useState('Alle');
 
   const { children, activeChildren, gruppen, loading, saveIndicator, addChild, updateChild, deleteChild, setChildrenBulk, setGruppenBulk, addGruppe, removeGruppe, renameGruppe } = useChildren();
   const { todayData, setTodayPrices, setTodaySelection, setBulkTodaySelection, setTodayAbmeldung, getMonthSummary } = useMeals(selectedDate, activeChildren);
+  const weekMonday = useMemo(() => getWeekMonday(weekAnchor), [weekAnchor]);
+  const weekMeals = useWeekMeals(weekMonday, activeChildren);
   const { startTour, checkFirstUse } = useTour();
   const update = useAutoUpdate();
 
@@ -46,10 +52,10 @@ export default function App() {
     return list;
   }, [children, activeChildren, gruppeFilter, tab]);
 
-  // Keyboard shortcuts: Ctrl+1..6 für Tab-Wechsel
+  // Keyboard shortcuts: Ctrl+1..7 für Tab-Wechsel
   useEffect(() => {
     const handler = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '6') {
+      if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '7') {
         e.preventDefault();
         setTab(TAB_IDS[parseInt(e.key) - 1]);
       }
@@ -104,6 +110,18 @@ export default function App() {
                 setTodaySelection={setTodaySelection}
                 setBulkTodaySelection={setBulkTodaySelection}
                 setTodayAbmeldung={setTodayAbmeldung}
+              />
+            )}
+
+            {tab === 'week' && (
+              <WeeklyEntry
+                weekAnchor={weekAnchor}
+                setWeekAnchor={setWeekAnchor}
+                gruppeFilter={gruppeFilter}
+                setGruppeFilter={setGruppeFilter}
+                gruppen={gruppen}
+                filteredChildren={filteredChildren}
+                {...weekMeals}
               />
             )}
 

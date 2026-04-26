@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { storageGet, storageSet } from '../utils/storage';
+import { storageGet, storageSet, subscribeStorage } from '../utils/storage';
 import { daysInMonth, fmtDate, GERICHTE } from '../utils/dates';
 
 export function useMeals(selectedDate, activeChildren) {
@@ -11,10 +11,19 @@ export function useMeals(selectedDate, activeChildren) {
   }, [selectedDate]);
 
   useEffect(() => {
-    (async () => {
+    let cancelled = false;
+    const reload = async () => {
       const data = await storageGet(monthKey);
-      setDailyData(data || {});
-    })();
+      if (!cancelled) setDailyData(data || {});
+    };
+    reload();
+    const unsub = subscribeStorage((key) => {
+      if (key === monthKey) reload();
+    });
+    return () => {
+      cancelled = true;
+      unsub();
+    };
   }, [monthKey]);
 
   const saveDailyData = useCallback(

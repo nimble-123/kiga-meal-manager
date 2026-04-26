@@ -40,3 +40,58 @@ export function fmtDate(y, m, d) {
 export function fmtEuro(n) {
   return n.toFixed(2).replace('.', ',') + ' \u20AC';
 }
+
+export function getWeekMonday(isoDate) {
+  const d = new Date(isoDate + 'T12:00:00');
+  const dow = d.getDay();
+  const diff = dow === 0 ? -6 : 1 - dow;
+  d.setDate(d.getDate() + diff);
+  return fmtDate(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+export function getWeekDates(isoDate) {
+  const monday = getWeekMonday(isoDate);
+  const m = new Date(monday + 'T12:00:00');
+  const out = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(m);
+    d.setDate(m.getDate() + i);
+    out.push(fmtDate(d.getFullYear(), d.getMonth(), d.getDate()));
+  }
+  return out;
+}
+
+export function getWeekNumber(isoDate) {
+  const d = new Date(isoDate + 'T12:00:00');
+  const target = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = target.getUTCDay() || 7;
+  target.setUTCDate(target.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1));
+  return Math.ceil(((target - yearStart) / 86400000 + 1) / 7);
+}
+
+export function getWeekYear(isoDate) {
+  const d = new Date(isoDate + 'T12:00:00');
+  const target = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = target.getUTCDay() || 7;
+  target.setUTCDate(target.getUTCDate() + 4 - dayNum);
+  return target.getUTCFullYear();
+}
+
+export function getPreviousWeekMonday(isoDate) {
+  const monday = getWeekMonday(isoDate);
+  const d = new Date(monday + 'T12:00:00');
+  d.setDate(d.getDate() - 7);
+  return fmtDate(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+export function addDaysToISO(isoDate, days) {
+  const d = new Date(isoDate + 'T12:00:00');
+  d.setDate(d.getDate() + days);
+  return fmtDate(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+export function getMonthKey(isoDate) {
+  const d = new Date(isoDate + 'T12:00:00');
+  return `meals-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}

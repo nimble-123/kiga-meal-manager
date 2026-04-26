@@ -186,6 +186,22 @@ describe('Bulk Meal Assignment', () => {
     });
   });
 
+  it('Abmeldung zieht Kosten NICHT vom Tagesbetrag ab (nur Info)', async () => {
+    const mealData = withPrices({
+      selections: { c1: 'A', c2: 'A', c3: 'A' }, // alle drei je 3,50 € = 10,50 €
+      abmeldungen: { c2: { active: true, grund: 'krank' } },
+    });
+    await setupDailyView(mealData);
+
+    // Footer-Betrag: 10,50 € (alle drei Selections inkl. abgemeldete)
+    const footer = document.querySelector('#tour-daily-summary');
+    expect(footer.textContent).toContain('10,50');
+    // Abmeldungs-Hinweis
+    expect(footer.textContent).toContain('1 abgemeldet');
+    // Anzahl Essen (zählt alle Selections)
+    expect(footer.textContent).toMatch(/Gesamt:\s*3\s*Essen/);
+  });
+
   it('does not show bulk buttons on closed days', async () => {
     await setupDailyView();
 
