@@ -510,6 +510,125 @@ test.describe('Wochenerfassung', () => {
   });
 });
 
+test.describe('Negativ-/Edge-Cases', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await seedData(page);
+    await page.reload();
+  });
+
+  test('Tageserfassung: geschlossener Tag (Sonntag) blockiert Eingabe', async ({ page }) => {
+    // 2026-04-12 ist ein Sonntag
+    await page.locator('input[type="date"]').fill('2026-04-12');
+    await expect(page.getByText('Geschlossen')).toBeVisible();
+    // Keine Bulk-Buttons im thead
+    const headerMealBtns = page.locator('thead .meal-btn');
+    await expect(headerMealBtns).toHaveCount(0);
+  });
+
+  test('Tageserfassung: Feiertag (Karfreitag 2026-04-03) blockiert Eingabe', async ({ page }) => {
+    await page.locator('input[type="date"]').fill('2026-04-03');
+    await expect(page.getByText('Geschlossen')).toBeVisible();
+  });
+
+  test('PriceInput: negative Eingabe wird auf leer reduziert', async ({ page }) => {
+    await page.locator('input[type="date"]').fill('2026-04-08');
+    // Erstes PriceInput finden (Gerichtpreis A)
+    const priceInputs = page.locator('input[inputmode="decimal"]');
+    const firstPrice = priceInputs.first();
+    await firstPrice.click();
+    await firstPrice.fill('-5');
+    await firstPrice.blur();
+    // Verlässt den negativen Wert wieder
+    await expect(firstPrice).toHaveValue('');
+  });
+
+  test('PriceInput: Komma-Eingabe wird mit 2 Nachkommastellen formatiert', async ({ page }) => {
+    await page.locator('input[type="date"]').fill('2026-04-08');
+    const priceInputs = page.locator('input[inputmode="decimal"]');
+    const firstPrice = priceInputs.first();
+    await firstPrice.click();
+    await firstPrice.fill('3,5');
+    await firstPrice.blur();
+    await expect(firstPrice).toHaveValue('3.50');
+  });
+
+  test('Gericht-Buttons ohne Preis sind klickbar aber inaktiv', async ({ page }) => {
+    await page.locator('input[type="date"]').fill('2026-04-08');
+    // Gericht E hat keinen Preis (nicht gesetzt)
+    const row = page.getByRole('row', { name: /Müller, Emma/ });
+    const eBtn = row.locator('.meal-btn', { hasText: 'E' }).first();
+    // Klick darauf darf nichts setzen (cursor: default, opacity 0.3)
+    await eBtn.click({ force: true });
+    await expect(eBtn).not.toHaveClass(/active/);
+  });
+
+  test('Stammdaten: Kind ohne Namen kann nicht gespeichert werden', async ({ page }) => {
+    await page.getByRole('button', { name: /Stammdaten/ }).click();
+    await page.getByText(/Kind hinzufügen/).click();
+    // ChildForm rendert "💾 Speichern" - Button ist disabled solange form.name leer
+    const submitButton = page.getByRole('button', { name: /Speichern/ }).last();
+    await expect(submitButton).toBeDisabled();
+    // Name eintragen → Button wird enabled
+    await page.getByPlaceholder('Nachname, Vorname').fill('Testkind, Anna');
+    await expect(submitButton).toBeEnabled();
+  });
+
+  test('Monatsübersicht: leerer Monat zeigt 0 Essen im Footer', async ({ page }) => {
+    await page.getByRole('button', { name: /Monatsübersicht/ }).click();
+    // Default = aktueller Monat ohne Daten
+    await expect(page.getByText(/Gesamt:\s*0\s*Essen/)).toBeVisible();
+  });
+
+  test('Jahresübersicht: leeres Jahr zeigt – in allen Monatsspalten', async ({ page }) => {
+    await page.getByRole('button', { name: /Jahresübersicht/ }).click();
+    // Setze Jahr, das garantiert keine Daten hat
+    await page.locator('input[type="number"]').fill('2010');
+    await expect(page.getByText('Jahressumme:').last()).toBeVisible();
+    await expect(page.getByText(/0,00.*€/)).toBeVisible();
+  });
+
+  test('Auswertung: Empty-State erscheint bei leerem Jahr', async ({ page }) => {
+    await page.getByRole('button', { name: /Auswertung/ }).click();
+    await page.locator('input[type="number"]').fill('2010');
+    await expect(page.getByText(/Keine Essensdaten/)).toBeVisible();
+  });
+
+  test('Wochenerfassung: zukünftige Wochen ohne Daten zeigen leere Matrix', async ({ page }) => {
+    await page.getByRole('button', { name: /Wochenerfassung/ }).click();
+    // Vorwärts mehrfach navigieren
+    for (let i = 0; i < 10; i++) {
+      await page.locator('button[data-tooltip="Nächste Woche"]').click();
+    }
+    // Keine Auswahlen sichtbar (keine .meal-btn.active in tbody)
+    const activeBtnsInBody = page.locator('tbody .meal-btn.active');
+    await expect(activeBtnsInBody).toHaveCount(0);
+    // Wochen-Gesamt = 0 Essen
+    await expect(page.getByText(/Wochen-Gesamt:\s*0\s*Essen/)).toBeVisible();
+  });
+
+  test('Vorwoche-Übernehmen ohne Vorwoche-Daten ändert nichts', async ({ page }) => {
+    await page.getByRole('button', { name: /Wochenerfassung/ }).click();
+    // Navigiere weit in die Zukunft, wo keine Vorwoche-Daten existieren
+    for (let i = 0; i < 20; i++) {
+      await page.locator('button[data-tooltip="Nächste Woche"]').click();
+    }
+    await page.getByRole('button', { name: /Vorwoche übernehmen/ }).click();
+    // Keine Aktiven, kein Confirm-Dialog (weil keine Daten)
+    await expect(page.getByText(/Wochen-Gesamt:\s*0\s*Essen/)).toBeVisible();
+  });
+
+  test('Verwaltung: "Alle Stammdaten löschen" zeigt ConfirmDialog mit Anzahl', async ({ page }) => {
+    await page.getByRole('button', { name: /Verwaltung/ }).click();
+    await expect(page.getByText(/Alle löschen.*Kinder/)).toBeVisible();
+    await page.getByText(/Alle löschen.*Kinder/).click();
+    await expect(page.getByText(/Alle Stammdaten löschen\?/)).toBeVisible();
+    // Cancel
+    await page.getByText('Abbrechen').click();
+    await expect(page.getByText(/Alle Stammdaten löschen\?/)).not.toBeVisible();
+  });
+});
+
 test.describe('Version Info', () => {
   test('shows version in header', async ({ page }) => {
     await page.goto('/');
