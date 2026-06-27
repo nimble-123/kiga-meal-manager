@@ -30,6 +30,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
   const [confirm, setConfirm] = useState(null);
   const [mealKeyCount, setMealKeyCount] = useState(0);
   const [storagePath, setStoragePath] = useState('');
+  const [lic, setLic] = useState(null);
   const [testMonths, setTestMonths] = useState(6);
   const [feedback, setFeedback] = useState('');
   const { settings: backupSettings, updateSettings: updateBackupSettings, pickFolder, isElectron: isElectronBackup } = useAutoBackup();
@@ -40,6 +41,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
       setMealKeyCount(keys.filter((k) => k.startsWith('meals-')).length);
       const p = await storageGetPath();
       if (p) setStoragePath(p);
+      if (window.api?.license) setLic(await window.api.license.status());
     })();
   }, []);
 
@@ -429,6 +431,16 @@ export default function Administration({ children, activeChildren, gruppen, setC
         <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '8px 16px', fontSize: 13 }}>
           <span style={{ color: '#6B7280' }}>Version:</span>
           <span style={{ fontWeight: 600 }}>v{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '?'}</span>
+          <span style={{ color: '#6B7280' }}>Lizenz:</span>
+          <span style={{ fontWeight: 600 }}>
+            {!window.api?.license ? 'Entwicklermodus' : lic?.licensed ? lic.licensee : '—'}
+          </span>
+          {lic?.licensed && lic.issuedAt && (
+            <>
+              <span style={{ color: '#6B7280' }}>Lizenziert seit:</span>
+              <span style={{ fontWeight: 600 }}>{lic.issuedAt}</span>
+            </>
+          )}
           <span style={{ color: '#6B7280' }}>Kinder (gesamt / aktiv):</span>
           <span style={{ fontWeight: 600 }}>{children.length} / {activeChildren.length}</span>
           <span style={{ color: '#6B7280' }}>Gruppen:</span>

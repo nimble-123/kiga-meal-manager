@@ -18,6 +18,7 @@ Desktop-Anwendung zur täglichen Erfassung der Essenskosten im Kindergarten "KiG
 - **Tooltips** - Kontextbezogene Hilfe auf Buttons und Bedienelementen
 - **Geführte Tour** - Interaktives Tutorial beim ersten Start, jederzeit über Help-Button wiederholbar
 - **Sicherheitsabfragen** - Bestätigungsdialoge bei allen destruktiven Aktionen (Löschen, Überschreiben)
+- **Lizenzschutz & Verschlüsselung** - Aktivierung mit signiertem Offline-Lizenzschlüssel; die lokalen Daten werden verschlüsselt gespeichert (siehe [Lizenzierung & Aktivierung](#lizenzierung--aktivierung))
 
 ## Tech-Stack
 
@@ -28,7 +29,8 @@ Desktop-Anwendung zur täglichen Erfassung der Essenskosten im Kindergarten "KiG
 | Styling | Tailwind CSS 4, Inline-Styles |
 | Charts | recharts |
 | Guided Tour | driver.js |
-| Datenspeicherung | electron-store (lokale JSON-Datei) |
+| Datenspeicherung | electron-store (lokale JSON-Datei, verschlüsselt) |
+| Lizenzierung | Signierte Ed25519-Lizenzschlüssel (Node `crypto`, offline) |
 | CSV-Handling | papaparse |
 | Build/Packaging | electron-builder |
 
@@ -67,9 +69,9 @@ npm run test:watch
 
 | Test-Art | Tool | Verzeichnis | Anzahl |
 |---|---|---|---|
-| Unit Tests | Vitest | `tests/unit/` | 38 |
-| Integration Tests | Vitest + React Testing Library | `tests/integration/` | 40 |
-| E2E Tests | Playwright | `e2e/` | 37 |
+| Unit Tests | Vitest | `tests/unit/` | 121 |
+| Integration Tests | Vitest + React Testing Library | `tests/integration/` | 90 |
+| E2E Tests | Playwright | `e2e/` | 68 |
 
 ## CI/CD
 
@@ -129,7 +131,7 @@ Erstellt im Ordner `release/` eine DMG-Datei (`KiGa Essenverwaltung-X.X.X.dmg`).
 
 ## Erststart
 
-Beim ersten Start ist die App leer. Eine **geführte Tour** startet automatisch und zeigt alle Bereiche der App. Danach gibt es drei Wege, Daten zu laden:
+Beim ersten Start muss die App zunächst mit einem **Lizenzschlüssel aktiviert** werden (siehe [Lizenzierung & Aktivierung](#lizenzierung--aktivierung)). Danach ist die App leer und eine **geführte Tour** startet automatisch und zeigt alle Bereiche. Es gibt drei Wege, Daten zu laden:
 
 1. **CSV importieren** - Die mitgelieferte Sample-Datei `data/sample/kinder.csv` enthält Beispieldaten
 2. **Manuell anlegen** - Kinder einzeln über das Stammdaten-Formular erfassen
@@ -147,6 +149,41 @@ Alle Daten werden lokal auf dem Rechner gespeichert:
 | macOS | `~/Library/Application Support/kiga-essenverwaltung-data/` |
 
 Es wird keine Internetverbindung und kein externer Server benötigt.
+
+Im Speicherordner liegen zwei Dateien:
+
+- `kiga-essenverwaltung-data.json` – die eigentlichen Daten (Kinder, Essen, Gruppen), **verschlüsselt** (AES, Schlüssel aus dem Lizenzschlüssel abgeleitet)
+- `kiga-license.json` – der Lizenz-Token, Lizenznehmer und ein Migrations-Flag (unverschlüsselt; der Token ist ein signiertes, nicht geheimes Artefakt)
+
+## Lizenzierung & Aktivierung
+
+Die App ist lizenzpflichtig und prüft beim Start einen **signierten Offline-Lizenzschlüssel** (Ed25519). Es ist keine Internetverbindung nötig.
+
+### Für Anwender:innen
+
+Beim ersten Start erscheint der Aktivierungs-Dialog. Den erhaltenen Lizenzschlüssel entweder direkt **einfügen** oder die gelieferte **`.lic`-Datei importieren** und auf *Aktivieren* klicken. Danach startet die App normal; der Lizenzstatus ist später unter **Verwaltung → System-Info** sichtbar.
+
+### Für Vertrieb/Entwicklung – Lizenzschlüssel ausstellen
+
+Schlüssel werden mit einem lokalen CLI-Tool erzeugt (nicht Teil der ausgelieferten App):
+
+```bash
+# Einmalig: Schlüsselpaar erzeugen. Den ausgegebenen Public Key in
+# electron/licenseKey.js eintragen. Der Private Key landet unter
+# scripts/license/private-key.pem (gitignored).
+node scripts/license/generate-license.mjs keygen
+
+# Pro Kunde einen Lizenzschlüssel signieren:
+node scripts/license/generate-license.mjs sign --name "KiGa Mitte" --out kiga-mitte.lic
+```
+
+> ⚠️ **Wichtig:** `scripts/license/private-key.pem` ist der einzige Weg, neue Schlüssel für den in der App eingebetteten Public Key auszustellen. Die Datei ist gitignored – unbedingt sicher und **außerhalb des Repos** aufbewahren. Geht sie verloren, können keine neuen Lizenzen mehr erzeugt werden.
+
+### Hinweise & Grenzen
+
+- **Verschlüsselung:** Der Datendatei-Schlüssel wird aus dem Lizenzschlüssel abgeleitet und nie im Klartext gespeichert. Ein **Lizenzwechsel** macht bestehende Daten unlesbar – die Aktivierung blockiert das daher; ein Wechsel ist nur über Vollbackup-Export → Zurücksetzen → Re-Import möglich.
+- **Schutzgrad:** Als ausgeliefertes JavaScript ist eine Electron-App nicht manipulationssicher. Es handelt sich um einen wirksamen **Zugangs-/Abschreckungsschutz** gegen gelegenheitsmäßige unbefugte Nutzung/Weitergabe, nicht um Schutz gegen einen entschlossenen Angreifer. Fälschungssicher ist hingegen das Ausstellen der Schlüssel (der Private Key bleibt beim Herausgeber).
+- **Entwicklung/Tests:** Außerhalb von Electron (Browser/Dev/Tests) fehlt die Lizenz-API – dort läuft die App ohne Gate (Entwicklermodus).
 
 ## Keyboard-Shortcuts
 

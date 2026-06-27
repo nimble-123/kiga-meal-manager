@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
-const { initStore } = require('./store');
+const { getDataStore } = require('./store');
+const license = require('./license');
 const { setupAutoUpdater } = require('./updater');
 
 let mainWindow;
@@ -29,7 +30,7 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  await initStore();
+  await license.bootstrap();
   createWindow();
 
   const isProduction = process.env.NODE_ENV !== 'development';
@@ -38,34 +39,38 @@ app.whenReady().then(async () => {
 });
 app.on('window-all-closed', () => app.quit());
 
-// IPC Handlers für Datenspeicherung
-ipcMain.handle('store:get', async (_, key) => {
-  const store = await initStore();
-  return store.get(key);
+// IPC Handlers für Datenspeicherung (null-sicher: vor Aktivierung ist der Store zu)
+ipcMain.handle('store:get', (_, key) => {
+  const store = getDataStore();
+  return store ? store.get(key) : null;
 });
-ipcMain.handle('store:set', async (_, key, value) => {
-  const store = await initStore();
-  store.set(key, value);
+ipcMain.handle('store:set', (_, key, value) => {
+  const store = getDataStore();
+  if (store) store.set(key, value);
 });
-ipcMain.handle('store:delete', async (_, key) => {
-  const store = await initStore();
-  store.delete(key);
+ipcMain.handle('store:delete', (_, key) => {
+  const store = getDataStore();
+  if (store) store.delete(key);
 });
-ipcMain.handle('store:has', async (_, key) => {
-  const store = await initStore();
-  return store.has(key);
+ipcMain.handle('store:has', (_, key) => {
+  const store = getDataStore();
+  return store ? store.has(key) : false;
 });
 
 // Store: Alle Keys auflisten
-ipcMain.handle('store:keys', async () => {
-  const store = await initStore();
-  return Object.keys(store.store);
+ipcMain.handle('store:keys', () => {
+  const store = getDataStore();
+  return store ? Object.keys(store.store) : [];
 });
 // Store: Dateipfad
-ipcMain.handle('store:path', async () => {
-  const store = await initStore();
-  return store.path;
+ipcMain.handle('store:path', () => {
+  const store = getDataStore();
+  return store ? store.path : null;
 });
+
+// Lizenz
+ipcMain.handle('license:status', () => license.getStatus());
+ipcMain.handle('license:activate', (_, { key }) => license.activate(key));
 // Datei öffnen (Import)
 ipcMain.handle('open-file', async (_, { filters }) => {
   const { dialog } = require('electron');

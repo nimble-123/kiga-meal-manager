@@ -9,6 +9,10 @@ contextBridge.exposeInMainWorld('api', {
     keys: () => ipcRenderer.invoke('store:keys'),
     getPath: () => ipcRenderer.invoke('store:path'),
   },
+  license: {
+    status: () => ipcRenderer.invoke('license:status'),
+    activate: (key) => ipcRenderer.invoke('license:activate', { key }),
+  },
   saveCSV: (data) => ipcRenderer.invoke('save-csv', data),
   saveFile: (data) => ipcRenderer.invoke('save-file', data),
   openFile: (data) => ipcRenderer.invoke('open-file', data),
