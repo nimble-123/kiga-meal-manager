@@ -12,6 +12,7 @@ import { useChildren } from './hooks/useChildren';
 import { useMeals } from './hooks/useMeals';
 import { useWeekMeals } from './hooks/useWeekMeals';
 import { useTour } from './hooks/useTour';
+import { useWeekView } from './hooks/useWeekView';
 import { useAutoUpdate } from './hooks/useAutoUpdate';
 import UpdateBanner from './components/UpdateBanner';
 import { getWeekMonday } from './utils/dates';
@@ -31,9 +32,10 @@ export default function App() {
   const weekMonday = useMemo(() => getWeekMonday(weekAnchor), [weekAnchor]);
   const weekMeals = useWeekMeals(weekMonday, activeChildren);
   const { startTour, checkFirstUse } = useTour();
+  const { enabled: weekEnabled, setWeekView } = useWeekView();
   const update = useAutoUpdate();
 
-  const handleStartTour = useCallback(() => startTour(setTab), [startTour]);
+  const handleStartTour = useCallback(() => startTour(setTab, weekEnabled), [startTour, weekEnabled]);
 
   // Auto-start tour on first use
   useEffect(() => {
@@ -41,10 +43,15 @@ export default function App() {
     checkFirstUse().then((isFirstUse) => {
       if (isFirstUse) {
         // Small delay so the UI is fully rendered
-        setTimeout(() => startTour(setTab), 500);
+        setTimeout(() => startTour(setTab, weekEnabled), 500);
       }
     });
   }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Falls die Wochenerfassung deaktiviert wird, während ihr Tab aktiv ist
+  useEffect(() => {
+    if (!weekEnabled && tab === 'week') setTab('daily');
+  }, [weekEnabled, tab]);
 
   const filteredChildren = useMemo(() => {
     let list = tab === 'stamm' ? children : activeChildren;
@@ -52,17 +59,19 @@ export default function App() {
     return list;
   }, [children, activeChildren, gruppeFilter, tab]);
 
-  // Keyboard shortcuts: Ctrl+1..7 für Tab-Wechsel
+  // Keyboard shortcuts: Ctrl+1..7 für Tab-Wechsel (Ctrl+2 inaktiv ohne Wochenerfassung)
   useEffect(() => {
     const handler = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '7') {
         e.preventDefault();
-        setTab(TAB_IDS[parseInt(e.key) - 1]);
+        const target = TAB_IDS[parseInt(e.key) - 1];
+        if (target === 'week' && !weekEnabled) return;
+        setTab(target);
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [weekEnabled]);
 
   const handleEmptyImport = useCallback((importedChildren, importedGruppen) => {
     setChildrenBulk(importedChildren);
@@ -89,7 +98,7 @@ export default function App() {
     <div style={{ background: '#FAF7F2', fontFamily: '-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif', minHeight: '100vh', color: '#1F2937' }}>
       {saveIndicator && <div className="save-dot">{'\u2713'} Gespeichert</div>}
 
-      <Header tab={tab} setTab={setTab} activeCount={activeChildren.length} onStartTour={handleStartTour} />
+      <Header tab={tab} setTab={setTab} activeCount={activeChildren.length} onStartTour={handleStartTour} weekEnabled={weekEnabled} />
       <UpdateBanner update={update} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 24px' }}>
@@ -113,7 +122,7 @@ export default function App() {
               />
             )}
 
-            {tab === 'week' && (
+            {tab === 'week' && weekEnabled && (
               <WeeklyEntry
                 weekAnchor={weekAnchor}
                 setWeekAnchor={setWeekAnchor}
@@ -185,6 +194,8 @@ export default function App() {
                 setChildrenBulk={setChildrenBulk}
                 setGruppenBulk={setGruppenBulk}
                 update={update}
+                weekEnabled={weekEnabled}
+                setWeekView={setWeekView}
               />
             )}
           </>

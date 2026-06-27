@@ -21,6 +21,7 @@ async function setupWeekView(extraStore = {}) {
     children: testChildren,
     gruppen: ['Delfin', 'Dino'],
     tourCompleted: true,
+    weekViewEnabled: true,
     [APRIL_KEY]: {
       [MONDAY_KW16]: { prices: { A: 3.5, B: 4 }, selections: {}, abmeldungen: {} },
     },
@@ -150,6 +151,7 @@ describe('WeeklyEntry', () => {
       children: testChildren,
       gruppen: ['Delfin', 'Dino'],
       tourCompleted: true,
+      weekViewEnabled: true,
     });
     render(<App />);
     await waitFor(() => screen.getByText('Müller, Emma'));
@@ -175,6 +177,7 @@ describe('WeeklyEntry', () => {
       children: testChildren,
       gruppen: ['Delfin', 'Dino'],
       tourCompleted: true,
+      weekViewEnabled: true,
       'meals-2025-12': {
         '2025-12-29': { prices: { A: 3.5 }, selections: {}, abmeldungen: {} },
       },
@@ -214,6 +217,7 @@ describe('WeeklyEntry', () => {
       children: testChildren,
       gruppen: ['Delfin', 'Dino'],
       tourCompleted: true,
+      weekViewEnabled: true,
       [APRIL_KEY]: {
         '2026-04-07': { prices: { A: 3.5 }, selections: { c1: 'A', c2: 'A' }, abmeldungen: {} },
         '2026-04-08': { prices: { A: 3.5 }, selections: { c1: 'A', c2: 'A', c3: 'A' }, abmeldungen: {} },
@@ -244,6 +248,7 @@ describe('WeeklyEntry', () => {
       children: testChildren,
       gruppen: ['Delfin', 'Dino'],
       tourCompleted: true,
+      weekViewEnabled: true,
       [APRIL_KEY]: {
         [TODAY]: {
           prices: { A: 3.5 },
@@ -272,6 +277,7 @@ describe('WeeklyEntry', () => {
       children: testChildren,
       gruppen: ['Delfin', 'Dino'],
       tourCompleted: true,
+      weekViewEnabled: true,
       [APRIL_KEY]: {
         // Mo: alle drei A (3,50 € * 3 = 10,50 €), c2 abgemeldet
         [MONDAY_KW16]: {
@@ -301,6 +307,7 @@ describe('WeeklyEntry', () => {
       children: testChildren,
       gruppen: ['Delfin', 'Dino'],
       tourCompleted: true,
+      weekViewEnabled: true,
       [APRIL_KEY]: {
         [TODAY]: {
           prices: { A: 3.5 },
@@ -336,6 +343,7 @@ describe('WeeklyEntry', () => {
       children: testChildren,
       gruppen: ['Delfin', 'Dino'],
       tourCompleted: true,
+      weekViewEnabled: true,
       [APRIL_KEY]: { [TODAY]: dayPayload },
     });
     render(<App />);
@@ -367,6 +375,7 @@ describe('WeeklyEntry', () => {
       children: testChildren,
       gruppen: ['Delfin', 'Dino'],
       tourCompleted: true,
+      weekViewEnabled: true,
       [APRIL_KEY]: {
         [TODAY]: { prices: { A: 3.5, B: 4 }, selections: {}, abmeldungen: {} },
       },
@@ -398,6 +407,7 @@ describe('WeeklyEntry', () => {
       children: testChildren,
       gruppen: ['Delfin', 'Dino'],
       tourCompleted: true,
+      weekViewEnabled: true,
       [APRIL_KEY]: {
         [TODAY]: {
           prices: { A: 3.5 },

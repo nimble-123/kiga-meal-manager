@@ -5,6 +5,7 @@ Desktop-Anwendung zur täglichen Erfassung der Essenskosten im Kindergarten "KiG
 ## Features
 
 - **Tageserfassung** - Essenauswahl pro Kind mit Preiseingabe pro Gericht (A-E), automatische 2-Nachkommastellen-Formatierung, Bulk-Zuweisung eines Gerichts an alle sichtbaren Kinder per Header-Button
+- **Wochenerfassung** (optional) - Wochenplan als Matrix Kinder × Mo–Fr zum Eintragen im Voraus; in der Verwaltung unter „Ansichten" ein-/ausblendbar (standardmäßig aus)
 - **Monatsübersicht** - Zusammenfassung aller Essen und Kosten pro Kind mit Aufschlüsselung nach Gerichttyp
 - **Jahresübersicht** - 12-Monats-Matrix mit Gesamtkosten und Essen-Breakdown
 - **Stammdaten** - Kinder verwalten (hinzufügen, bearbeiten, löschen, aktivieren/deaktivieren) mit sortierbaren Spalten und integrierter Gruppenverwaltung
@@ -153,11 +154,12 @@ Es wird keine Internetverbindung und kein externer Server benötigt.
 | Tastenkombination | Aktion |
 |---|---|
 | `Ctrl+1` | Tageserfassung |
-| `Ctrl+2` | Stammdaten |
-| `Ctrl+3` | Monatsübersicht |
-| `Ctrl+4` | Jahresübersicht |
-| `Ctrl+5` | Auswertung |
-| `Ctrl+6` | Verwaltung |
+| `Ctrl+2` | Wochenerfassung (nur wenn aktiviert) |
+| `Ctrl+3` | Stammdaten |
+| `Ctrl+4` | Monatsübersicht |
+| `Ctrl+5` | Jahresübersicht |
+| `Ctrl+6` | Auswertung |
+| `Ctrl+7` | Verwaltung |
 
 ## App-Icon
 

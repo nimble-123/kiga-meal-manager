@@ -16,13 +16,13 @@ export function useTour() {
     };
   }, []);
 
-  const startTour = useCallback((setTab) => {
+  const startTour = useCallback((setTab, weekEnabled = false) => {
     // Destroy previous instance if running
     if (driverRef.current) {
       driverRef.current.destroy();
     }
 
-    const steps = createTourSteps(setTab);
+    const steps = createTourSteps(setTab, weekEnabled);
 
     const driverObj = driver({
       showProgress: true,
