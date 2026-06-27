@@ -18,7 +18,7 @@ Electron-Desktop-App zur Verwaltung der Essenkosten in einer Kindertagesstätte 
 electron/              Electron Main Process (main.js, preload.js, store.js)
 data/sample/           Sample-CSV-Dateien für Erstimport (kinder.csv, gruppen.csv)
 src/
-  App.jsx              Haupt-App mit Tab-Navigation (6 Views) + Keyboard-Shortcuts
+  App.jsx              Haupt-App mit Tab-Navigation (6–7 Views, Wochenerfassung optional) + Keyboard-Shortcuts
   main.jsx             React Entry Point
   components/
     Header.jsx         Navigation Header mit Version + 6 Tabs + Help-Button
@@ -43,6 +43,7 @@ src/
     useSortableTable.js Sortier-Hook für Tabellen (locale-aware, accessor-support)
     useAutoBackup.js   Automatisches periodisches Backup (Electron-only)
     useTour.js         Geführte App-Tour via driver.js
+    useWeekView.js     Toggle für die Wochenerfassung (Tab/Shortcut/Tour), persistiert `weekViewEnabled`
   config/
     tourSteps.js       Tour-Schritte-Definition (17 Steps durch alle 6 Tabs)
   data/
@@ -90,6 +91,7 @@ src/
 - **Geführte Tour:** driver.js-basierte Tour durch alle 6 Tabs. Startet automatisch beim Erststart, danach über Help-Button (?) im Header. Persistiert `tourCompleted` im Store.
 - **Auto-Backup:** Konfigurierbar im Backup-Panel (Intervall, Ordner, Max-Backups). Nur in Electron verfügbar. Settings unter `autoBackup` im Store.
 - **Bulk-Zuweisung:** Im Tageserfassungs-Header kleine A-E-Buttons zum Zuweisen eines Gerichts an alle sichtbaren, nicht-abgemeldeten Kinder. Toggle-Verhalten (erneuter Klick entfernt). Nutzt `setBulkTodaySelection()` in `useMeals.js` für einen einzelnen Storage-Schreibvorgang.
+- **Wochenerfassung (optional):** Der Wochenerfassungs-Tab ist über `useWeekView` (`weekViewEnabled`, **standardmäßig aus**) in der Verwaltung (Section „Ansichten“) ein-/ausblendbar. `weekEnabled` steuert Tab (`Header`), Keyboard-Shortcut (Ctrl+2 inaktiv wenn aus) und den Tour-Schritt (`createTourSteps(setTab, weekEnabled)`). Wird der Tab deaktiviert, während er aktiv ist, springt die App auf `daily` zurück.
 - **ConfirmDialogs:** Alle destruktiven Aktionen (Kind/Gruppe/Stammdaten/Bewegungsdaten löschen, Backup wiederherstellen) zeigen ConfirmDialog.
 
 ## Wichtige Konventionen

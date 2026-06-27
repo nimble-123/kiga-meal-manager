@@ -253,6 +253,7 @@ test.describe('Keyboard Shortcuts', () => {
   test('Ctrl+1-7 switches tabs', async ({ page }) => {
     await page.goto('/');
     await seedData(page);
+    await page.evaluate(() => localStorage.setItem('weekViewEnabled', JSON.stringify(true)));
     await page.reload();
     await expect(page.getByText('Müller, Emma')).toBeVisible();
 
@@ -304,6 +305,7 @@ test.describe('Wochenerfassung', () => {
     await pinDate(page);
     await page.goto('/');
     await seedData(page);
+    await page.evaluate(() => localStorage.setItem('weekViewEnabled', JSON.stringify(true)));
     await seedWeekData(page, {
       '2026-04-13': { prices: { A: 3.5, B: 4 }, selections: {}, abmeldungen: {} },
       '2026-04-14': { prices: { A: 3.5, B: 4 }, selections: {}, abmeldungen: {} },
@@ -514,6 +516,7 @@ test.describe('Negativ-/Edge-Cases', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await seedData(page);
+    await page.evaluate(() => localStorage.setItem('weekViewEnabled', JSON.stringify(true)));
     await page.reload();
   });
 
