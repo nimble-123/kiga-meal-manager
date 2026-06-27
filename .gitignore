@@ -13,3 +13,8 @@ test-results/
 playwright-report/
 blob-report/
 coverage/
+
+# License signing (Entwickler-Geheimnis + ausgestellte Lizenzen)
+scripts/license/private-key.pem
+scripts/license/*.pem
+*.lic

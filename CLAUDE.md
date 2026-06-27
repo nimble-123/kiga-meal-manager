@@ -8,20 +8,30 @@ Electron-Desktop-App zur Verwaltung der Essenkosten in einer Kindertagesstätte 
 - **Charts:** recharts
 - **Guided Tour:** driver.js
 - **Desktop:** Electron 41, electron-builder
-- **Datenspeicherung:** electron-store (lokale JSON-Datei im User-Verzeichnis)
+- **Datenspeicherung:** electron-store (lokale JSON-Datei im User-Verzeichnis, **verschlüsselt**)
 - **CSV-Parsing:** papaparse
+- **Lizenzierung:** Offline-Aktivierung mit signierten Ed25519-Lizenzschlüsseln (Node `crypto`)
 - **Sprache:** JavaScript (kein TypeScript)
 
 ## Projektstruktur
 
 ```
-electron/              Electron Main Process (main.js, preload.js, store.js)
+electron/              Electron Main Process
+  main.js              App-Lifecycle, BrowserWindow, IPC-Handler
+  preload.js           contextBridge (window.api)
+  store.js             Verschlüsselter Daten-Store (openDataStore/getDataStore/migrateToEncrypted)
+  license.js           Lizenz-Bootstrap/Aktivierung + Meta-Store + reine Logik (statusFromPayload/rekeyBlocked)
+  licenseCrypto.js     Reine Ed25519-Verifikation + Key-Ableitung (isoliert testbar)
+  licenseKey.js        Eingebetteter Public Key (kein Geheimnis)
+scripts/license/       Entwickler-CLI generate-license.mjs (keygen/sign) — NICHT ausgeliefert
 data/sample/           Sample-CSV-Dateien für Erstimport (kinder.csv, gruppen.csv)
 src/
-  App.jsx              Haupt-App mit Tab-Navigation (6 Views) + Keyboard-Shortcuts
+  App.jsx              Lizenz-Gate-Wrapper (useLicense → LicenseGate | MealApp)
+  MealApp.jsx          Haupt-App mit Tab-Navigation (6 Views) + Keyboard-Shortcuts
   main.jsx             React Entry Point
   components/
     Header.jsx         Navigation Header mit Version + 6 Tabs + Help-Button
+    LicenseGate.jsx    Full-Screen-Aktivierung (Schlüssel einfügen / .lic importieren)
     DailyEntry.jsx     Tageserfassung (Essenauswahl + Abmeldung pro Kind/Tag + Bulk-Zuweisung)
     MonthlyReport.jsx  Monatsübersicht (Zusammenfassung pro Kind)
     YearlyReport.jsx   Jahresübersicht (12-Monats-Matrix)
@@ -43,6 +53,7 @@ src/
     useSortableTable.js Sortier-Hook für Tabellen (locale-aware, accessor-support)
     useAutoBackup.js   Automatisches periodisches Backup (Electron-only)
     useTour.js         Geführte App-Tour via driver.js
+    useLicense.js      Lizenzstatus laden + aktivieren (Bypass ohne window.api.license)
   config/
     tourSteps.js       Tour-Schritte-Definition (17 Steps durch alle 6 Tabs)
   data/
@@ -77,6 +88,7 @@ src/
 - **State-Management:** Kein Redux/Zustand - Custom Hooks (`useChildren`, `useMeals`) verwalten State in `App.jsx` und reichen Props an Komponenten durch.
 - **Storage:** Zentrales Modul `src/utils/storage.js` abstrahiert über electron-store / localStorage. Alle Storage-Zugriffe laufen hierüber.
 - **Datenspeicherung:** Schlüssel: `meals-YYYY-MM` für Essens-Daten, `children` für Kinderliste, `gruppen` für Gruppen. Tages-Daten enthalten `prices`, `selections` und optional `abmeldungen` (`{ active: bool, grund: string }` pro Kind).
+- **Lizenzschutz & Verschlüsselung:** Zwei Stores — `kiga-license.json` (unverschlüsselt, hält nur den signierten Token + Lizenznehmer + `migrated`-Flag) und `kiga-essenverwaltung-data.json` (**verschlüsselt** mit `encryptionKey = sha256(token)`, erst nach gültiger Lizenz geöffnet). Verifikation der Ed25519-Signatur im Main-Prozess (`electron/licenseCrypto.js`). Beim Start `license.bootstrap()`; ohne gültige Lizenz zeigt `App.jsx` den `LicenseGate`. Bestehende Klartext-Daten werden bei Erst-Aktivierung einmalig und datenverlustsicher migriert (`migrateToEncrypted`, geschützt per `migrated`-Flag + try/catch). **Re-Key-Caveat:** ein anderer Lizenzschlüssel ergibt einen anderen abgeleiteten Key → bestehende Daten unlesbar; `activate()` blockiert daher den Token-Wechsel. Lizenzen ausstellen: `node scripts/license/generate-license.mjs sign --name "…"`; der Private Key (`scripts/license/private-key.pem`) ist gitignored und muss out-of-band gesichert werden.
 - **Gruppen:** Dynamisch verwaltbar im Stammdaten-Tab (collapsible Panel über der Kindertabelle). Farben via `getGruppeColor()` (feste Map + Hash-Fallback).
 - **Filter:** Alle Views unterstützen Gruppenfilter. Summen/Gesamt-Anzeigen berücksichtigen immer den aktiven Filter via `filteredChildren`.
 - **Sortierung:** `useSortableTable` Hook + `SortHeader` Komponente. Alle Tabellen sind einheitlich sortierbar.
@@ -108,6 +120,8 @@ src/
 | `store:get/set/delete/has` | Key-Value Storage |
 | `store:keys` | Alle Keys auflisten |
 | `store:path` | Dateipfad des Stores |
+| `license:status` | Lizenzstatus abfragen (`{ licensed, licensee, issuedAt }`, nie der Token) |
+| `license:activate` | Lizenzschlüssel prüfen + aktivieren (`{ success, error? }`) |
 | `save-csv` | CSV-Datei speichern (Dialog) |
 | `save-file` | Beliebige Datei speichern (JSON-Export) |
 | `open-file` | Datei öffnen + Inhalt lesen (Import) |
@@ -124,6 +138,7 @@ src/
 - **E2E:** Playwright mit Chromium, testet gegen Vite Dev-Server, Daten via localStorage geseedet
 - **Config:** `vitest.config.js`, `playwright.config.js`
 - Test-Artefakte (screenshots, reports) liegen in `test-results/` (gitignored)
+- **Lizenz-Bypass in Tests:** Fehlt `window.api.license` (Browser/Dev/Tests), gilt die App als lizenziert (Entwicklermodus) → bestehende Tests laufen unverändert. `tests/setup.js` darf daher **kein** `license` mocken. Lizenz-Tests: `tests/unit/licenseCrypto.test.js` (Krypto mit Ephemeral-Keypair), `tests/unit/license.test.js` (reine Logik), `tests/integration/LicenseGate.test.jsx` (Gate-UI, setzt `window.api.license` lokal).
 
 ## CI/CD
 
