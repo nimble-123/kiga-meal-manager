@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const { initStore } = require('./store');
+const telemetry = require('./telemetry');
 const { setupAutoUpdater } = require('./updater');
 
 let mainWindow;
@@ -207,8 +208,11 @@ ipcMain.handle('delete-file', async (_, { filePath }) => {
   }
 });
 
-// Rückwärtskompatibel: einfache E-Mail ohne Anhang
-ipcMain.handle('open-email', (_, { subject, body }) => {
-  const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+// Rückwärtskompatibel: einfache E-Mail ohne Anhang (optionaler Empfänger `to`)
+ipcMain.handle('open-email', (_, { subject, body, to }) => {
+  const mailto = `mailto:${encodeURIComponent(to || '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   shell.openExternal(mailto);
 });
+
+// Anonyme, opt-in Telemetrie (Consent-Prüfung erfolgt in ./telemetry gegen den Store)
+ipcMain.handle('telemetry:track', (_, { name, props }) => telemetry.track(name, props));
