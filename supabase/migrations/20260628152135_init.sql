@@ -41,20 +41,22 @@ create table public.subscriptions (
   updated_at             timestamptz not null default now()
 );
 
+-- Liste der Gruppennamen pro Org (children.gruppe referenziert den Namen, App-Modell).
 create table public.gruppen (
   id         uuid primary key default gen_random_uuid(),
   org_id     uuid not null references public.organizations(id) on delete cascade,
   name       text not null,
   created_at timestamptz not null default now(),
-  unique (org_id, name),
-  unique (id, org_id)            -- Ziel für spätere Composite-FKs
+  unique (org_id, name)
 );
 
+-- id ist die vom Client vergebene App-ID (`c<timestamp>`), kein uuid -> die Hooks
+-- (whole-array writes) bleiben unverändert; gruppe ist der Gruppenname (App-Modell).
 create table public.children (
-  id            uuid primary key default gen_random_uuid(),
+  id            text not null,
   org_id        uuid not null references public.organizations(id) on delete cascade,
   name          text not null,
-  gruppe_id     uuid references public.gruppen(id) on delete set null,
+  gruppe        text,
   but           boolean not null default false,
   zahlungspfl   text,
   adresse       text,
@@ -64,6 +66,7 @@ create table public.children (
   eintritt      date,
   austritt      date,
   created_at    timestamptz not null default now(),
+  primary key (id),
   unique (id, org_id)            -- Ziel für Composite-FK aus meal_entries
 );
 
@@ -81,7 +84,7 @@ create table public.meal_prices (
 create table public.meal_entries (
   id               uuid primary key default gen_random_uuid(),
   org_id           uuid not null references public.organizations(id) on delete cascade,
-  child_id         uuid not null,
+  child_id         text not null,
   datum            date not null,
   gericht          text,                              -- null = keine Auswahl
   abmeldung_active boolean not null default false,
