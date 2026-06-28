@@ -13,3 +13,8 @@ test-results/
 playwright-report/
 blob-report/
 coverage/
+
+# Environment (Supabase/Stripe Keys etc.)
+.env
+.env.local
+.env.*.local
