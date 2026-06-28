@@ -10,12 +10,15 @@ Electron-Desktop-App zur Verwaltung der Essenkosten in einer Kindertagesstätte 
 - **Desktop:** Electron 41, electron-builder
 - **Datenspeicherung:** electron-store (lokale JSON-Datei im User-Verzeichnis)
 - **CSV-Parsing:** papaparse
+- **Telemetrie:** Aptabase (`@aptabase/electron`) — optional, opt-in, anonym (nur Main-Prozess)
 - **Sprache:** JavaScript (kein TypeScript)
 
 ## Projektstruktur
 
 ```
-electron/              Electron Main Process (main.js, preload.js, store.js)
+electron/              Electron Main Process (main.js, preload.js, store.js, updater.js)
+  telemetry.js         Aptabase-Wrapper (nur Main): track() mit Consent-Gate gegen den Store
+  telemetryConfig.js   Aptabase App-Key (publishable; leer = Telemetrie aus)
 data/sample/           Sample-CSV-Dateien für Erstimport (kinder.csv, gruppen.csv)
 src/
   App.jsx              Haupt-App mit Tab-Navigation (6 Views) + Keyboard-Shortcuts
@@ -37,12 +40,14 @@ src/
       SortHeader.jsx   Sortierbare Spaltenheader (klickbar, Pfeil-Indikator)
       PriceInput.jsx   Preis-Input mit Formatierung + Validierung
       ConfirmDialog.jsx Modal-Dialog für destruktive Aktionen
+    FeedbackDialog.jsx Feedback/Feature-Wunsch per vorausgefüllter E-Mail (info@nilslutz.de)
   hooks/
     useChildren.js     Kinder- und Gruppen-CRUD + Persistenz + Bulk-Import
     useMeals.js        Essens-Daten pro Tag/Monat (Preise + Auswahl + Abmeldungen + byMeal-Tracking + Bulk-Zuweisung)
     useSortableTable.js Sortier-Hook für Tabellen (locale-aware, accessor-support)
     useAutoBackup.js   Automatisches periodisches Backup (Electron-only)
     useTour.js         Geführte App-Tour via driver.js
+    useTelemetryConsent.js Einwilligung in anonyme Telemetrie (`telemetryConsent`, Default aus)
   config/
     tourSteps.js       Tour-Schritte-Definition (17 Steps durch alle 6 Tabs)
   data/
@@ -52,7 +57,8 @@ src/
     storage.js         Zentrales Storage-Modul (get/set/delete/keys/openFile/selectDirectory/saveFileToPath/listFiles/deleteFile)
     dates.js           Konstanten (Gerichte, Monate, Farben), Hilfsfunktionen
     csv.js             CSV-Download
-    email.js           E-Mail-Versand mit CSV-Anhang
+    email.js           E-Mail-Versand mit CSV-Anhang (sendEmail mit optionalem Empfänger)
+    telemetry.js       Renderer-Telemetrie-Wrapper (no-op ohne window.api.telemetry)
     import.js          CSV/JSON Import/Export für Stamm- und Bewegungsdaten
     testData.js        Testdaten-Generator (realistische Essensdaten)
     analytics.js       Analytics-Daten-Aggregation (12 Monate parallel)
@@ -91,6 +97,8 @@ src/
 - **Auto-Backup:** Konfigurierbar im Backup-Panel (Intervall, Ordner, Max-Backups). Nur in Electron verfügbar. Settings unter `autoBackup` im Store.
 - **Bulk-Zuweisung:** Im Tageserfassungs-Header kleine A-E-Buttons zum Zuweisen eines Gerichts an alle sichtbaren, nicht-abgemeldeten Kinder. Toggle-Verhalten (erneuter Klick entfernt). Nutzt `setBulkTodaySelection()` in `useMeals.js` für einen einzelnen Storage-Schreibvorgang.
 - **ConfirmDialogs:** Alle destruktiven Aktionen (Kind/Gruppe/Stammdaten/Bewegungsdaten löschen, Backup wiederherstellen) zeigen ConfirmDialog.
+- **Telemetrie:** Anonyme, **opt-in** Nutzungsstatistiken via Aptabase. Läuft **ausschließlich im Main-Prozess** (`electron/telemetry.js`) hinter dem IPC-Kanal `telemetry:track`; der Consent-Gate (`telemetryConsent`, Default aus, via `useTelemetryConsent` / Section „Datenschutz & Nutzungsstatistiken" in Administration) wird im Main gegen den Store geprüft. Renderer ruft nur `track()` aus `src/utils/telemetry.js`. No-op ohne App-Key (`electron/telemetryConfig.js`) oder ohne Einwilligung. Events sind PII-frei (`app_started`, `tab_opened`, `feature_used`, `feedback_submitted`) — **niemals** Kinderdaten/Freitext.
+- **Feedback:** `FeedbackDialog` (💬 im Header / Section in Administration) erzeugt via `sendEmail(subject, body, 'info@nilslutz.de')` eine vorausgefüllte E-Mail an den Entwickler (kein Backend).
 
 ## Wichtige Konventionen
 
@@ -112,7 +120,8 @@ src/
 | `save-file` | Beliebige Datei speichern (JSON-Export) |
 | `open-file` | Datei öffnen + Inhalt lesen (Import) |
 | `send-email-with-csv` | E-Mail mit CSV-Anhang |
-| `open-email` | Einfache E-Mail (mailto:) |
+| `open-email` | Einfache E-Mail (mailto:, optionaler Empfänger `to`) |
+| `telemetry:track` | Anonymes Telemetrie-Event (Consent-Prüfung im Main) |
 | `select-directory` | Ordner-Auswahl-Dialog (Auto-Backup) |
 | `save-file-to-path` | Datei an Pfad speichern ohne Dialog |
 | `list-files` | Dateien in Verzeichnis auflisten |

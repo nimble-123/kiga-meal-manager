@@ -1,8 +1,8 @@
-export function sendEmail(subject, body) {
+export function sendEmail(subject, body, to) {
   if (window.api?.openEmail) {
-    window.api.openEmail({ subject, body });
+    window.api.openEmail({ subject, body, to });
   } else {
-    window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    window.open(`mailto:${encodeURIComponent(to || '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
   }
 }
 

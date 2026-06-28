@@ -9,6 +9,9 @@ contextBridge.exposeInMainWorld('api', {
     keys: () => ipcRenderer.invoke('store:keys'),
     getPath: () => ipcRenderer.invoke('store:path'),
   },
+  telemetry: {
+    track: (name, props) => ipcRenderer.invoke('telemetry:track', { name, props }),
+  },
   saveCSV: (data) => ipcRenderer.invoke('save-csv', data),
   saveFile: (data) => ipcRenderer.invoke('save-file', data),
   openFile: (data) => ipcRenderer.invoke('open-file', data),
