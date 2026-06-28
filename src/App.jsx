@@ -84,6 +84,7 @@ export default function App() {
   const handleEmptyImport = useCallback((importedChildren, importedGruppen) => {
     setChildrenBulk(importedChildren);
     if (importedGruppen.length > 0) setGruppenBulk(importedGruppen);
+    track('feature_used', { feature: 'import_children' });
   }, [setChildrenBulk, setGruppenBulk]);
 
   const handleEmptyAddChild = useCallback(() => {

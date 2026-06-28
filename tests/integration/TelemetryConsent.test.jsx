@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import App from '../../src/App';
 import { resetStore, seedStore } from '../setup';
@@ -11,6 +11,10 @@ describe('Telemetrie-Einwilligung & Feedback (in App)', () => {
   beforeEach(() => {
     resetStore();
     window.api.store.set.mockClear();
+  });
+
+  afterEach(() => {
+    delete window.api.telemetry;
   });
 
   it('Einwilligung ist standardmäßig aus und wird beim Aktivieren persistiert', async () => {
@@ -38,5 +42,18 @@ describe('Telemetrie-Einwilligung & Feedback (in App)', () => {
     await waitFor(() => expect(screen.getByText(/Feedback \/ Feature-Wunsch/)).toBeInTheDocument());
     // E-Mail-Empfänger ist der Entwickler (über den Hinweistext im Dialog erkennbar)
     expect(screen.getByText(/per E-Mail an den Entwickler/)).toBeInTheDocument();
+  });
+
+  it('feuert ein feature_used-Event beim Versand des Monatsberichts', async () => {
+    window.api.telemetry = { track: vi.fn() };
+    seedStore({ children: testChildren, gruppen: ['Delfin'], tourCompleted: true });
+    render(<App />);
+    await waitFor(() => screen.getByText('Müller, Emma'));
+
+    fireEvent.click(screen.getByText(/Monatsübersicht/));
+    await waitFor(() => screen.getByText(/Per E-Mail/));
+    fireEvent.click(screen.getByText(/Per E-Mail/));
+
+    expect(window.api.telemetry.track).toHaveBeenCalledWith('feature_used', { feature: 'email_report' });
   });
 });

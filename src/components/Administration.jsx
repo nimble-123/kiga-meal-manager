@@ -89,6 +89,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
     }
     setImportPreview(null);
     showFeedback(`${importPreview.children.length} Kinder importiert`);
+    track('feature_used', { feature: 'import_children' });
   };
 
   // --- Stammdaten Export ---
@@ -136,6 +137,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
     const keys = await storageKeys();
     setMealKeyCount(keys.filter((k) => k.startsWith('meals-')).length);
     showFeedback(`${count} Monate importiert`);
+    track('feature_used', { feature: 'import_meals' });
   };
 
   const handleExportMealsCSV = async () => {
@@ -157,6 +159,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
     const keys = await storageKeys();
     setMealKeyCount(keys.filter((k) => k.startsWith('meals-')).length);
     showFeedback(`${count} Monate importiert (CSV)`);
+    track('feature_used', { feature: 'import_meals' });
   };
 
   const handleDeleteMeals = async () => {
@@ -217,6 +220,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
       const keys = await storageKeys();
       setMealKeyCount(keys.filter((k) => k.startsWith('meals-')).length);
       showFeedback('Backup wiederhergestellt');
+      track('feature_used', { feature: 'backup_restore' });
     } catch (e) {
       alert(`Fehler beim Wiederherstellen: ${e.message}`);
     }
