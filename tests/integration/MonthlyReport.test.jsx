@@ -111,6 +111,48 @@ describe('MonthlyReport', () => {
     expect(call.content).toContain(';3,50'); // Dezimalkomma
   });
 
+  it('CSV-Export enthält Gesamtsummen-Zeile über alle Kinder', async () => {
+    await setupMonth({
+      'meals-2026-04': {
+        '2026-04-08': { prices: { A: 3.5 }, selections: { c1: 'A', c2: 'A' }, abmeldungen: {} },
+        '2026-04-09': { prices: { A: 3.5 }, selections: { c1: 'A' }, abmeldungen: {} },
+      },
+    });
+    fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: '3' } });
+    fireEvent.change(screen.getByDisplayValue(String(new Date().getFullYear())), { target: { value: '2026' } });
+
+    await waitFor(() => screen.getByText(/Gesamt:\s*3\s*Essen/));
+
+    fireEvent.click(screen.getByText(/CSV Export/));
+    await waitFor(() => {
+      expect(window.api.saveCSV).toHaveBeenCalled();
+    });
+    const lines = window.api.saveCSV.mock.calls.at(-1)[0].content.trim().split('\n');
+    // Letzte Zeile ist die Gesamtsumme: 3 Essen, 10,50 €
+    expect(lines[lines.length - 1]).toBe(';Gesamt;;;;3;10,50');
+  });
+
+  it('Gesamtsummen-Zeile berücksichtigt den Gruppen-Filter', async () => {
+    await setupMonth({
+      'meals-2026-04': {
+        '2026-04-08': { prices: { A: 3.5 }, selections: { c1: 'A', c2: 'A' }, abmeldungen: {} },
+      },
+    });
+    fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: '3' } });
+    fireEvent.change(screen.getByDisplayValue(String(new Date().getFullYear())), { target: { value: '2026' } });
+    fireEvent.change(screen.getAllByRole('combobox')[1], { target: { value: 'Delfin' } });
+
+    await waitFor(() => screen.getByText(/Gesamt:\s*1\s*Essen/));
+
+    fireEvent.click(screen.getByText(/CSV Export/));
+    await waitFor(() => {
+      expect(window.api.saveCSV).toHaveBeenCalled();
+    });
+    const lines = window.api.saveCSV.mock.calls.at(-1)[0].content.trim().split('\n');
+    // Nur Delfin-Kind zählt: 1 Essen, 3,50 €
+    expect(lines[lines.length - 1]).toBe(';Gesamt;;;;1;3,50');
+  });
+
   it('E-Mail-Button ruft sendEmailWithCSV mit Subject und Body auf', async () => {
     await setupMonth();
     fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: '3' } });
