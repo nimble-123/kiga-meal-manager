@@ -16,12 +16,17 @@ export default function MonthlyReport({ selectedMonth, setSelectedMonth, selecte
 
   const { sortedData, sortConfig, requestSort } = useSortableTable(filteredChildren, 'name');
 
+  const totalCount = filteredChildren.reduce((s, c) => s + (monthSummary[c.id]?.count || 0), 0);
+  const totalSum = filteredChildren.reduce((s, c) => s + (monthSummary[c.id]?.total || 0), 0);
+  const breakdown = getSummaryBreakdown(filteredChildren, monthSummary);
+
   const generateCSV = () => {
     let csv = 'Nr;Name;Gruppe;Zahlungspflichtiger;Kassenzeichen;Anzahl Essen;Betrag\n';
     filteredChildren.forEach((c, i) => {
       const s = monthSummary[c.id] || { count: 0, total: 0 };
       csv += `${i + 1};${c.name};${c.gruppe};${c.zahlungspfl};${c.kassenzeichen};${s.count};${s.total.toFixed(2).replace('.', ',')}\n`;
     });
+    csv += `;Gesamt;;;;${totalCount};${totalSum.toFixed(2).replace('.', ',')}\n`;
     return csv;
   };
 
@@ -39,10 +44,6 @@ export default function MonthlyReport({ selectedMonth, setSelectedMonth, selecte
       csvContent
     );
   };
-
-  const totalCount = filteredChildren.reduce((s, c) => s + (monthSummary[c.id]?.count || 0), 0);
-  const totalSum = filteredChildren.reduce((s, c) => s + (monthSummary[c.id]?.total || 0), 0);
-  const breakdown = getSummaryBreakdown(filteredChildren, monthSummary);
 
   return (
     <div className="fade-in">
