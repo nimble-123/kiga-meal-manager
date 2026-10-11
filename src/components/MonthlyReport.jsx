@@ -4,6 +4,7 @@ import SortHeader from './ui/SortHeader';
 import { MONATE, getGruppeColor, fmtEuro } from '../utils/dates';
 import { downloadCSV } from '../utils/csv';
 import { sendEmailWithCSV } from '../utils/email';
+import { track } from '../utils/telemetry';
 import { useSortableTable } from '../hooks/useSortableTable';
 import { getSummaryBreakdown, BreakdownDisplay } from '../utils/mealBreakdown';
 
@@ -32,6 +33,7 @@ export default function MonthlyReport({ selectedMonth, setSelectedMonth, selecte
 
   const exportMonthCSV = () => {
     downloadCSV(`Essensabrechnung_${MONATE[selectedMonth]}_${selectedYear}.csv`, generateCSV());
+    track('feature_used', { feature: 'csv_export' });
   };
 
   const handleEmail = () => {
@@ -43,6 +45,7 @@ export default function MonthlyReport({ selectedMonth, setSelectedMonth, selecte
       csvFilename,
       csvContent
     );
+    track('feature_used', { feature: 'email_report' });
   };
 
   return (

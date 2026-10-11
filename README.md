@@ -18,6 +18,8 @@ Desktop-Anwendung zur täglichen Erfassung der Essenskosten im Kindergarten "KiG
 - **Tooltips** - Kontextbezogene Hilfe auf Buttons und Bedienelementen
 - **Geführte Tour** - Interaktives Tutorial beim ersten Start, jederzeit über Help-Button wiederholbar
 - **Sicherheitsabfragen** - Bestätigungsdialoge bei allen destruktiven Aktionen (Löschen, Überschreiben)
+- **Feedback aus der App** - Fehler melden oder Feature-Wünsche per E-Mail an den Entwickler senden (💬-Button im Header / Verwaltung)
+- **Anonyme Nutzungsstatistiken** (optional, opt-in) - helfen, die App zu verbessern; standardmäßig deaktiviert, DSGVO-konform (siehe [Datenschutz & Telemetrie](#datenschutz--telemetrie))
 
 ## Tech-Stack
 
@@ -30,6 +32,7 @@ Desktop-Anwendung zur täglichen Erfassung der Essenskosten im Kindergarten "KiG
 | Guided Tour | driver.js |
 | Datenspeicherung | electron-store (lokale JSON-Datei) |
 | CSV-Handling | papaparse |
+| Telemetrie (optional, opt-in) | Aptabase (anonym, DSGVO-konform) |
 | Build/Packaging | electron-builder |
 
 ## Voraussetzungen
@@ -146,7 +149,18 @@ Alle Daten werden lokal auf dem Rechner gespeichert:
 | Windows | `%APPDATA%\kiga-essenverwaltung-data\` |
 | macOS | `~/Library/Application Support/kiga-essenverwaltung-data/` |
 
-Es wird keine Internetverbindung und kein externer Server benötigt.
+Die App funktioniert **vollständig offline**. Lediglich die (standardmäßig deaktivierte) Update-Prüfung und die optionale, opt-in Telemetrie nutzen das Internet.
+
+## Datenschutz & Telemetrie
+
+Die App kann **anonyme Nutzungsstatistiken** erheben, um dem Entwickler bei der Weiterentwicklung zu helfen.
+
+- **Opt-in & standardmäßig deaktiviert:** Es werden keine Daten gesendet, solange nicht aktiv in *Verwaltung → Datenschutz & Nutzungsstatistiken* zugestimmt wurde.
+- **Strikt anonym:** Erhoben werden ausschließlich App-Version, Betriebssystem und genutzte Funktionen (z.B. „Backup erstellt"). **Niemals** Kinderdaten, Namen, Gruppen, Beträge oder Eingabetexte.
+- **Verarbeitung:** über [Aptabase](https://aptabase.com) (privacy-first, EU-Region/self-hostbar, kein Fingerprinting). Aktivierung über den (nicht geheimen) App-Key in `electron/telemetryConfig.js` – ohne Key ist die Telemetrie vollständig inaktiv.
+- **Hinweis für Betreiber:** Wer die Telemetrie aktiviert, ist datenschutzrechtlich Verantwortlicher und sollte Aptabase in der eigenen Datenschutzerklärung benennen.
+
+**Feedback** (💬-Button im Header bzw. *Verwaltung → Feedback*) öffnet eine vorausgefüllte E-Mail an den Entwickler – es wird nur gesendet, was der Anwender selbst abschickt.
 
 ## Keyboard-Shortcuts
 

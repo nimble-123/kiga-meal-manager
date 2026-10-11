@@ -8,7 +8,7 @@ const TABS = [
   { id: 'admin', label: 'Verwaltung', icon: '\u2699\uFE0F', tooltip: 'Import, Export & Einstellungen (Ctrl+7)' },
 ];
 
-export default function Header({ tab, setTab, activeCount, onStartTour }) {
+export default function Header({ tab, setTab, activeCount, onStartTour, onOpenFeedback }) {
   return (
     <div style={{ background: 'linear-gradient(135deg,#2D9F93 0%,#247A71 100%)', padding: '16px 24px', color: 'white' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 1200, margin: '0 auto' }}>
@@ -27,6 +27,16 @@ export default function Header({ tab, setTab, activeCount, onStartTour }) {
           >
             ?
           </button>
+          {onOpenFeedback && (
+            <button
+              id="feedback-btn"
+              onClick={onOpenFeedback}
+              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', borderRadius: '50%', width: 28, height: 28, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              data-tooltip="Feedback / Feature-Wunsch"
+            >
+              {'💬'}
+            </button>
+          )}
         </div>
         <div id="tour-tabs" style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 10, padding: 3 }}>
           {TABS.map((t) => (

@@ -12,9 +12,12 @@ import { useChildren } from './hooks/useChildren';
 import { useMeals } from './hooks/useMeals';
 import { useWeekMeals } from './hooks/useWeekMeals';
 import { useTour } from './hooks/useTour';
+import { useTelemetryConsent } from './hooks/useTelemetryConsent';
 import { useAutoUpdate } from './hooks/useAutoUpdate';
 import UpdateBanner from './components/UpdateBanner';
+import FeedbackDialog from './components/FeedbackDialog';
 import { getWeekMonday } from './utils/dates';
+import { track } from './utils/telemetry';
 
 const TAB_IDS = ['daily', 'week', 'stamm', 'month', 'year', 'analytics', 'admin'];
 
@@ -31,7 +34,11 @@ export default function App() {
   const weekMonday = useMemo(() => getWeekMonday(weekAnchor), [weekAnchor]);
   const weekMeals = useWeekMeals(weekMonday, activeChildren);
   const { startTour, checkFirstUse } = useTour();
+  const { consent, setConsent } = useTelemetryConsent();
   const update = useAutoUpdate();
+
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const openFeedback = useCallback(() => setFeedbackOpen(true), []);
 
   const handleStartTour = useCallback(() => startTour(setTab), [startTour]);
 
@@ -45,6 +52,16 @@ export default function App() {
       }
     });
   }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Telemetrie (anonym, opt-in; im Main-Prozess gegen Consent geprüft)
+  useEffect(() => {
+    if (loading) return;
+    track('app_started', { app_version: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '?' });
+  }, [loading]);
+
+  useEffect(() => {
+    track('tab_opened', { tab });
+  }, [tab]);
 
   const filteredChildren = useMemo(() => {
     let list = tab === 'stamm' ? children : activeChildren;
@@ -67,6 +84,7 @@ export default function App() {
   const handleEmptyImport = useCallback((importedChildren, importedGruppen) => {
     setChildrenBulk(importedChildren);
     if (importedGruppen.length > 0) setGruppenBulk(importedGruppen);
+    track('feature_used', { feature: 'import_children' });
   }, [setChildrenBulk, setGruppenBulk]);
 
   const handleEmptyAddChild = useCallback(() => {
@@ -88,8 +106,9 @@ export default function App() {
   return (
     <div style={{ background: '#FAF7F2', fontFamily: '-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif', minHeight: '100vh', color: '#1F2937' }}>
       {saveIndicator && <div className="save-dot">{'\u2713'} Gespeichert</div>}
+      {feedbackOpen && <FeedbackDialog onClose={() => setFeedbackOpen(false)} />}
 
-      <Header tab={tab} setTab={setTab} activeCount={activeChildren.length} onStartTour={handleStartTour} />
+      <Header tab={tab} setTab={setTab} activeCount={activeChildren.length} onStartTour={handleStartTour} onOpenFeedback={openFeedback} />
       <UpdateBanner update={update} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 24px' }}>
@@ -185,6 +204,9 @@ export default function App() {
                 setChildrenBulk={setChildrenBulk}
                 setGruppenBulk={setGruppenBulk}
                 update={update}
+                consent={consent}
+                setConsent={setConsent}
+                onOpenFeedback={openFeedback}
               />
             )}
           </>

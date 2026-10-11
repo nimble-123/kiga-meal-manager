@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import SortHeader from './ui/SortHeader';
 import { GERICHTE, MONATE, fmtEuro } from '../utils/dates';
 import { downloadCSV } from '../utils/csv';
+import { track } from '../utils/telemetry';
 import { useSortableTable } from '../hooks/useSortableTable';
 import { BreakdownDisplay } from '../utils/mealBreakdown';
 
@@ -53,6 +54,7 @@ export default function YearlyReport({ selectedYear, setSelectedYear, gruppeFilt
       csv += `${i + 1};${c.name};${c.gruppe};${c.kassenzeichen};${ys.months.map((m) => m.toFixed(2).replace('.', ',')).join(';')};${ys.total.toFixed(2).replace('.', ',')}\n`;
     });
     downloadCSV(`Jahresuebersicht_${selectedYear}.csv`, csv);
+    track('feature_used', { feature: 'csv_export' });
   };
 
   return (

@@ -7,6 +7,7 @@ import { parseChildrenCSV, parseChildrenJSON, parseGruppenCSV, exportChildrenCSV
 import { downloadCSV } from '../utils/csv';
 import { generateTestData } from '../utils/testData';
 import { useAutoBackup } from '../hooks/useAutoBackup';
+import { track } from '../utils/telemetry';
 
 function Section({ title, icon, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -24,7 +25,7 @@ function Section({ title, icon, children, defaultOpen = false }) {
   );
 }
 
-export default function Administration({ children, activeChildren, gruppen, setChildrenBulk, setGruppenBulk, update }) {
+export default function Administration({ children, activeChildren, gruppen, setChildrenBulk, setGruppenBulk, update, consent, setConsent, onOpenFeedback }) {
   const [importPreview, setImportPreview] = useState(null);
   const [importMode, setImportMode] = useState('replace');
   const [confirm, setConfirm] = useState(null);
@@ -88,6 +89,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
     }
     setImportPreview(null);
     showFeedback(`${importPreview.children.length} Kinder importiert`);
+    track('feature_used', { feature: 'import_children' });
   };
 
   // --- Stammdaten Export ---
@@ -135,6 +137,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
     const keys = await storageKeys();
     setMealKeyCount(keys.filter((k) => k.startsWith('meals-')).length);
     showFeedback(`${count} Monate importiert`);
+    track('feature_used', { feature: 'import_meals' });
   };
 
   const handleExportMealsCSV = async () => {
@@ -156,6 +159,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
     const keys = await storageKeys();
     setMealKeyCount(keys.filter((k) => k.startsWith('meals-')).length);
     showFeedback(`${count} Monate importiert (CSV)`);
+    track('feature_used', { feature: 'import_meals' });
   };
 
   const handleDeleteMeals = async () => {
@@ -183,6 +187,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
     setMealKeyCount(keys.filter((k) => k.startsWith('meals-')).length);
     setConfirm(null);
     showFeedback(`Testdaten für ${testMonths} Monate generiert`);
+    track('feature_used', { feature: 'testdata_generate' });
   };
 
   // --- Backup ---
@@ -200,6 +205,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
       a.download = `KiGa_Backup.json`;
       a.click();
     }
+    track('feature_used', { feature: 'backup_create' });
   };
 
   const handleRestore = async () => {
@@ -214,6 +220,7 @@ export default function Administration({ children, activeChildren, gruppen, setC
       const keys = await storageKeys();
       setMealKeyCount(keys.filter((k) => k.startsWith('meals-')).length);
       showFeedback('Backup wiederhergestellt');
+      track('feature_used', { feature: 'backup_restore' });
     } catch (e) {
       alert(`Fehler beim Wiederherstellen: ${e.message}`);
     }
@@ -419,6 +426,34 @@ export default function Administration({ children, activeChildren, gruppen, setC
               </span>
             </div>
           )}
+        </div>
+      </Section>
+
+      <Section title="Feedback / Feature-Wunsch" icon={'\uD83D\uDCAC'}>
+        <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 12, lineHeight: 1.6 }}>
+          Fehler melden oder eine Funktion w\u00FCnschen? Wir freuen uns \u00FCber R\u00FCckmeldungen. Das Feedback wird per E-Mail an den Entwickler gesendet.
+        </div>
+        <button className="btn btn-primary" onClick={onOpenFeedback}>{'\uD83D\uDCAC'} Feedback geben</button>
+      </Section>
+
+      <Section title="Datenschutz & Nutzungsstatistiken" icon={'\uD83D\uDCCA'}>
+        <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 12, lineHeight: 1.6 }}>
+          Optional d\u00FCrfen anonyme Nutzungsstatistiken erhoben werden, um die App zu verbessern. Erhoben werden
+          ausschlie\u00DFlich App-Version, Betriebssystem und welche Funktionen genutzt werden \u2013 <strong>niemals
+          Kinderdaten, Namen, Gruppen, Betr\u00E4ge oder Eingabetexte</strong>. Verarbeitung \u00FCber Aptabase (EU),
+          DSGVO-konform, jederzeit abschaltbar. Standardm\u00E4\u00DFig deaktiviert.
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '10px 16px', alignItems: 'center', fontSize: 13 }}>
+          <span style={{ color: '#6B7280' }}>Anonyme Statistiken senden:</span>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={!!consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              style={{ width: 16, height: 16, accentColor: '#2D9F93' }}
+            />
+            <span>{consent ? 'Aktiviert' : 'Deaktiviert'}</span>
+          </label>
         </div>
       </Section>
 
