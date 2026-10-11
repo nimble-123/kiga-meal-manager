@@ -1,4 +1,5 @@
-export function createTourSteps(setTab) {
+export function createTourSteps(setTab, weekEnabled = false) {
+  const tabCount = weekEnabled ? 7 : 6;
   return [
     // Willkommen
     {
@@ -13,7 +14,7 @@ export function createTourSteps(setTab) {
       element: '#tour-tabs',
       popover: {
         title: 'Navigation',
-        description: 'Hier wechselst du zwischen den 7 Bereichen der App. Du kannst auch die Tastenkombinationen Strg+1 bis Strg+7 verwenden.',
+        description: `Hier wechselst du zwischen den ${tabCount} Bereichen der App. Du kannst auch die Tastenkombinationen (Strg + Zahl) verwenden.`,
         side: 'bottom',
       },
     },
@@ -69,8 +70,8 @@ export function createTourSteps(setTab) {
       },
     },
 
-    // Wochenerfassung
-    {
+    // Wochenerfassung (nur wenn aktiviert)
+    ...(weekEnabled ? [{
       element: '#tour-tab-week',
       popover: {
         title: 'Wochenerfassung',
@@ -78,7 +79,7 @@ export function createTourSteps(setTab) {
         side: 'bottom',
       },
       onHighlightStarted: () => setTab('week'),
-    },
+    }] : []),
 
     // Stammdaten
     {
