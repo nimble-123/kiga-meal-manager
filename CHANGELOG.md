@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0](https://github.com/nimble-123/kiga-meal-manager/compare/v1.5.0...v1.6.0) (2026-10-11)
+
+
+### Features
+
+* add monthly total row to monthly CSV export ([d694d44](https://github.com/nimble-123/kiga-meal-manager/commit/d694d44024b3b31c6eff4cdfdc8135bf135cd6e0))
+* Wochenerfassung per Einstellung ein-/ausblendbar (standardmäßig aus) ([#8](https://github.com/nimble-123/kiga-meal-manager/issues/8)) ([367bb66](https://github.com/nimble-123/kiga-meal-manager/commit/367bb66fe76c3b2fe6edbdef30abaec80e31de49))
+
 ## [1.5.0](https://github.com/nimble-123/kiga-meal-manager/compare/v1.4.1...v1.5.0) (2026-04-26)
 
 
