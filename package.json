@@ -13,7 +13,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:all": "npm test && npm run test:e2e"
+    "test:all": "npm test && npm run test:e2e",
+    "screenshots": "node scripts/screenshots.mjs",
+    "architecture": "node scripts/architecture.mjs"
   },
   "build": {
     "appId": "de.kiga-mitte.essenverwaltung",

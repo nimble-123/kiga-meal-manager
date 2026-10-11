@@ -17,6 +17,8 @@ Electron-Desktop-App zur Verwaltung der Essenkosten in einer Kindertagesstätte 
 ```
 electron/              Electron Main Process (main.js, preload.js, store.js)
 data/sample/           Sample-CSV-Dateien für Erstimport (kinder.csv, gruppen.csv)
+docs/assets/           README-Bilder (screenshots/, architecture*.svg) – generiert, nicht von Hand bearbeiten
+scripts/               screenshots.mjs (Playwright) + architecture.mjs (SVG) für die README
 src/
   App.jsx              Haupt-App mit Tab-Navigation (6–7 Views, Wochenerfassung optional) + Keyboard-Shortcuts
   main.jsx             React Entry Point
@@ -72,6 +74,8 @@ src/
 | `npm run test:e2e` | E2E Tests (Playwright) |
 | `npm run test:all` | Alle Tests |
 | `npm run test:watch` | Tests im Watch-Modus |
+| `npm run screenshots` | README-Screenshots neu erzeugen (Sample-Daten, festes Datum, fester Seed) |
+| `npm run architecture` | Architektur-Grafik der README neu zeichnen (hell + dunkel) |
 
 ## Architektur-Hinweise
 
