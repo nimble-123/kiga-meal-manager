@@ -119,9 +119,9 @@ Die Installer kommen aus dem [neuesten Release](https://github.com/nimble-123/ki
 
 | Plattform | Datei | Hinweis |
 |---|---|---|
-| **Windows** – Installer | `KiGa Essenverwaltung Setup <version>.exe` | Installiert ohne Rückfrage für den aktuellen Benutzer, mit Desktop-Verknüpfung und automatischen Updates |
-| **Windows** – Portable | `KiGa Essenverwaltung <version>.exe` | Ohne Installation, z. B. vom USB-Stick |
-| **macOS** | `KiGa Essenverwaltung-<version>.dmg` | App in den Programme-Ordner ziehen |
+| **Windows** – Installer | `KiGa-Essenverwaltung-Setup-<version>.exe` | Installiert ohne Rückfrage für den aktuellen Benutzer, mit Desktop-Verknüpfung und automatischen Updates |
+| **Windows** – Portable | `KiGa-Essenverwaltung-<version>.exe` | Ohne Installation, z. B. vom USB-Stick |
+| **macOS** – Apple Silicon (M1 und neuer) | `KiGa-Essenverwaltung-<version>-arm64.dmg` | App in den Programme-Ordner ziehen. Für Intel-Macs gibt es derzeit keinen Build. |
 
 Updates meldet die installierte App selbst: Ein Banner bietet die neue Version zum Herunterladen an und installiert sie per *Neu starten* oder beim nächsten Beenden.
 
