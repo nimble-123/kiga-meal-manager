@@ -107,17 +107,32 @@ ipcMain.handle('save-csv', async (_, { filename, content }) => {
   return { success: false };
 });
 
-// E-Mail mit CSV-Anhang
-ipcMain.handle('send-email-with-csv', async (_, { subject, body, csvFilename, csvContent }) => {
+// Excel-Datei speichern (Monats-/Jahresübersicht)
+ipcMain.handle('save-xlsx', async (_, { filename, data }) => {
+  const { dialog } = require('electron');
+  const result = await dialog.showSaveDialog(mainWindow, {
+    defaultPath: filename,
+    filters: [{ name: 'Excel-Arbeitsmappen', extensions: ['xlsx'] }],
+  });
+  if (!result.canceled && result.filePath) {
+    const fs = require('fs');
+    fs.writeFileSync(result.filePath, Buffer.from(data));
+    return { success: true, path: result.filePath };
+  }
+  return { success: false };
+});
+
+// E-Mail mit Datei-Anhang (z. B. Excel-Abrechnung)
+ipcMain.handle('send-email-with-attachment', async (_, { subject, body, filename, data }) => {
   const fs = require('fs');
   const os = require('os');
   const { exec } = require('child_process');
 
-  // CSV in Temp-Verzeichnis speichern
+  // Anhang in Temp-Verzeichnis speichern
   const tmpDir = path.join(os.tmpdir(), 'kiga-essenverwaltung');
   if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
-  const csvPath = path.join(tmpDir, csvFilename);
-  fs.writeFileSync(csvPath, '\uFEFF' + csvContent, 'utf-8');
+  const filePath = path.join(tmpDir, path.basename(filename));
+  fs.writeFileSync(filePath, Buffer.from(data));
 
   if (process.platform === 'darwin') {
     // macOS: AppleScript öffnet Mail.app mit Anhang
@@ -127,7 +142,7 @@ ipcMain.handle('send-email-with-csv', async (_, { subject, body, csvFilename, cs
       tell application "Mail"
         set newMsg to make new outgoing message with properties {subject:"${escapedSubject}", content:"${escapedBody}", visible:true}
         tell newMsg
-          make new attachment with properties {file name:POSIX file "${csvPath}"}
+          make new attachment with properties {file name:POSIX file "${filePath}"}
         end tell
         activate
       end tell
@@ -137,24 +152,24 @@ ipcMain.handle('send-email-with-csv', async (_, { subject, body, csvFilename, cs
         if (err) {
           // Fallback: mailto + Datei im Finder zeigen
           shell.openExternal(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
-          shell.showItemInFolder(csvPath);
-          resolve({ success: true, fallback: true, csvPath });
+          shell.showItemInFolder(filePath);
+          resolve({ success: true, fallback: true, filePath });
         } else {
           resolve({ success: true });
         }
       });
     });
   } else {
-    // Windows/Linux: mailto öffnen + CSV-Datei im Explorer zeigen
+    // Windows/Linux: mailto öffnen + Datei im Explorer zeigen
     shell.openExternal(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
-    shell.showItemInFolder(csvPath);
+    shell.showItemInFolder(filePath);
     const { dialog } = require('electron');
     dialog.showMessageBox(mainWindow, {
       type: 'info',
-      title: 'CSV-Anhang',
-      message: `Die CSV-Datei wurde gespeichert unter:\n\n${csvPath}\n\nBitte fügen Sie diese Datei manuell als Anhang zur E-Mail hinzu.`,
+      title: 'E-Mail-Anhang',
+      message: `Die Datei wurde gespeichert unter:\n\n${filePath}\n\nBitte fügen Sie diese Datei manuell als Anhang zur E-Mail hinzu.`,
     });
-    return { success: true, fallback: true, csvPath };
+    return { success: true, fallback: true, filePath };
   }
 });
 

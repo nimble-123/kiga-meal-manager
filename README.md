@@ -38,7 +38,7 @@ Formeln, die beim Kopieren brechen, und am Monatsende Handarbeit für jede Famil
 - **Ohne Vorkenntnisse bedienbar.** Ein Klick pro Kind und Tag, eine geführte Tour beim ersten Start, Tooltips an allen Bedienelementen.
 - **Lokal und privat.** Keine Cloud, kein Server, kein Konto. Die Daten liegen in einer JSON-Datei im Benutzerordner.
 - **Richtig gerechnet.** Tagespreise pro Gericht, Abmeldungen mit Grund, Feiertage und Wochenenden automatisch gesperrt.
-- **Fertig für die Abrechnung.** Monatsübersicht pro Zahlungspflichtigem mit Kassenzeichen, als CSV oder direkt per E-Mail.
+- **Fertig für die Abrechnung.** Monatsübersicht pro Zahlungspflichtigem mit Kassenzeichen, als druckfertige Excel-Tabelle, CSV oder direkt per E-Mail.
 - **Sicher vor Datenverlust.** Vollbackup, automatische periodische Backups und Bestätigungsdialoge bei allem, was löscht.
 
 ## Features
@@ -66,8 +66,8 @@ Standardmäßig ausgeblendet und in der Verwaltung unter **Ansichten** einschalt
 
 ### 📅 Monats- und Jahresübersicht
 Essen und Beträge pro Kind mit Zahlungspflichtigem und Kassenzeichen, aufgeschlüsselt nach
-Gericht. Die Jahresübersicht zeigt alle zwölf Monate als Matrix. Export als CSV mit
-Summenzeile oder Versand als E-Mail mit CSV-Anhang.
+Gericht. Die Jahresübersicht zeigt alle zwölf Monate als Matrix. Export als **Excel-Tabelle**
+(gebänderte Zeilen, Summenzeile, druckfertig auf DIN A4) oder CSV, Versand als E-Mail mit Excel-Anhang.
 
 </td>
 <td valign="top">
@@ -105,7 +105,7 @@ Feiertage als Schließtage, Tastenkürzel für jeden Tab und **automatische Upda
 
 | | |
 |---|---|
-| ![Wochenerfassung: Matrix aus Kindern und Wochentagen Montag bis Freitag mit Gericht-Auswahl pro Tag und Wochenbetrag](docs/assets/screenshots/wochenerfassung.png) | ![Monatsübersicht: Kinder mit Gruppe, Zahlungspflichtigem, Kassenzeichen, Anzahl Essen und Betrag, oben CSV-Export und E-Mail-Versand](docs/assets/screenshots/monatsuebersicht.png) |
+| ![Wochenerfassung: Matrix aus Kindern und Wochentagen Montag bis Freitag mit Gericht-Auswahl pro Tag und Wochenbetrag](docs/assets/screenshots/wochenerfassung.png) | ![Monatsübersicht: Kinder mit Gruppe, Zahlungspflichtigem, Kassenzeichen, Anzahl Essen und Betrag, oben CSV- und Excel-Export sowie E-Mail-Versand](docs/assets/screenshots/monatsuebersicht.png) |
 | ![Jahresübersicht: Matrix aus Kindern und zwölf Monaten mit Beträgen](docs/assets/screenshots/jahresuebersicht.png) | ![Auswertung: Preisentwicklung pro Gericht, monatliche Gesamtkosten, Teilnahmequote und Essenverteilung](docs/assets/screenshots/auswertung.png) |
 | ![Stammdaten: Gruppenverwaltung und sortierbare Kindertabelle](docs/assets/screenshots/stammdaten.png) | ![Verwaltung: Import und Export, Backup, Auto-Backup und Ansichten](docs/assets/screenshots/verwaltung.png) |
 
@@ -222,7 +222,7 @@ electron/          Main Process: main.js, preload.js, store.js, updater.js
 src/
   components/      Views (Tages-, Wochenerfassung, Übersichten, Auswertung, Verwaltung) + ui/
   hooks/           useChildren, useMeals, useWeekView, useAutoBackup, useTour, …
-  utils/           storage, import/export, CSV, E-Mail, Analytics, Testdaten
+  utils/           storage, import/export, CSV, Excel, E-Mail, Analytics, Testdaten
   data/            Feiertage, Child-Factory
 tests/             Vitest: unit/ und integration/
 e2e/               Playwright
