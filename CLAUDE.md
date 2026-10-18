@@ -55,7 +55,8 @@ src/
     storage.js         Zentrales Storage-Modul (get/set/delete/keys/openFile/selectDirectory/saveFileToPath/listFiles/deleteFile)
     dates.js           Konstanten (Gerichte, Monate, Farben), Hilfsfunktionen
     csv.js             CSV-Download
-    email.js           E-Mail-Versand mit CSV-Anhang
+    excel.js           Excel-Export (.xlsx via ExcelJS, lazy geladen): Tabelle mit Bänderung + Summenzeile, A4-Druckeinrichtung
+    email.js           E-Mail-Versand mit Datei-Anhang (Monatsabrechnung als .xlsx)
     import.js          CSV/JSON Import/Export für Stamm- und Bewegungsdaten
     testData.js        Testdaten-Generator (realistische Essensdaten)
     analytics.js       Analytics-Daten-Aggregation (12 Monate parallel)
@@ -96,6 +97,7 @@ src/
 - **Auto-Backup:** Konfigurierbar im Backup-Panel (Intervall, Ordner, Max-Backups). Nur in Electron verfügbar. Settings unter `autoBackup` im Store.
 - **Bulk-Zuweisung:** Im Tageserfassungs-Header kleine A-E-Buttons zum Zuweisen eines Gerichts an alle sichtbaren, nicht-abgemeldeten Kinder. Toggle-Verhalten (erneuter Klick entfernt). Nutzt `setBulkTodaySelection()` in `useMeals.js` für einen einzelnen Storage-Schreibvorgang.
 - **Wochenerfassung (optional):** Der Wochenerfassungs-Tab ist über `useWeekView` (`weekViewEnabled`, **standardmäßig aus**) in der Verwaltung (Section „Ansichten“) ein-/ausblendbar. `weekEnabled` steuert Tab (`Header`), Keyboard-Shortcut (Ctrl+2 inaktiv wenn aus) und den Tour-Schritt (`createTourSteps(setTab, weekEnabled)`). Wird der Tab deaktiviert, während er aktiv ist, springt die App auf `daily` zurück.
+- **Excel-Export:** Monats- und Jahresübersicht exportieren zusätzlich zu CSV eine `.xlsx` (`src/utils/excel.js`). Excel-Tabelle (`TableStyleMedium2`, gebänderte Zeilen), Rahmen um alle Zellen, **letzte Zeile = Summenzeile** (`SUBTOTAL(109, …)`, respektiert Filter), DIN A4 (Monat hoch, Jahr quer), auf Seitenbreite skaliert, Tabellenkopf wiederholt sich beim Druck. Reihenfolge = angezeigte Sortierung, Gruppenfilter wird berücksichtigt. ExcelJS per dynamischem Import, damit es nicht im Start-Bundle landet.
 - **ConfirmDialogs:** Alle destruktiven Aktionen (Kind/Gruppe/Stammdaten/Bewegungsdaten löschen, Backup wiederherstellen) zeigen ConfirmDialog.
 
 ## Wichtige Konventionen
@@ -115,9 +117,10 @@ src/
 | `store:keys` | Alle Keys auflisten |
 | `store:path` | Dateipfad des Stores |
 | `save-csv` | CSV-Datei speichern (Dialog) |
+| `save-xlsx` | Excel-Datei speichern (Dialog, Binärdaten) |
 | `save-file` | Beliebige Datei speichern (JSON-Export) |
 | `open-file` | Datei öffnen + Inhalt lesen (Import) |
-| `send-email-with-csv` | E-Mail mit CSV-Anhang |
+| `send-email-with-attachment` | E-Mail mit Datei-Anhang (z. B. Excel) |
 | `open-email` | Einfache E-Mail (mailto:) |
 | `select-directory` | Ordner-Auswahl-Dialog (Auto-Backup) |
 | `save-file-to-path` | Datei an Pfad speichern ohne Dialog |

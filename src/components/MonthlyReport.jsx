@@ -3,7 +3,8 @@ import Badge from './ui/Badge';
 import SortHeader from './ui/SortHeader';
 import { MONATE, getGruppeColor, fmtEuro } from '../utils/dates';
 import { downloadCSV } from '../utils/csv';
-import { sendEmailWithCSV } from '../utils/email';
+import { sendEmailWithAttachment } from '../utils/email';
+import { buildMonthWorkbook, workbookToBytes, downloadXLSX, XLSX_MIME } from '../utils/excel';
 import { useSortableTable } from '../hooks/useSortableTable';
 import { getSummaryBreakdown, BreakdownDisplay } from '../utils/mealBreakdown';
 
@@ -34,14 +35,25 @@ export default function MonthlyReport({ selectedMonth, setSelectedMonth, selecte
     downloadCSV(`Essensabrechnung_${MONATE[selectedMonth]}_${selectedYear}.csv`, generateCSV());
   };
 
-  const handleEmail = () => {
-    const csvContent = generateCSV();
-    const csvFilename = `Essensabrechnung_${MONATE[selectedMonth]}_${selectedYear}.csv`;
-    sendEmailWithCSV(
+  const xlsxFilename = `Essensabrechnung_${MONATE[selectedMonth]}_${selectedYear}.xlsx`;
+
+  // Excel in der angezeigten Sortierung, damit der Ausdruck der Ansicht entspricht
+  const generateXLSX = async () =>
+    workbookToBytes(await buildMonthWorkbook({
+      year: selectedYear, month: selectedMonth, gruppe: gruppeFilter, children: sortedData, summary: monthSummary,
+    }));
+
+  const exportMonthXLSX = async () => {
+    downloadXLSX(xlsxFilename, await generateXLSX());
+  };
+
+  const handleEmail = async () => {
+    sendEmailWithAttachment(
       `Essensabrechnung ${MONATE[selectedMonth]} ${selectedYear} - KiGa Mitte`,
       `Anbei die Essensabrechnung für ${MONATE[selectedMonth]} ${selectedYear}.\n\nMit freundlichen Grüßen\nKiGa Mitte`,
-      csvFilename,
-      csvContent
+      xlsxFilename,
+      await generateXLSX(),
+      XLSX_MIME
     );
   };
 
@@ -64,7 +76,10 @@ export default function MonthlyReport({ selectedMonth, setSelectedMonth, selecte
           <button className="btn btn-primary" onClick={exportMonthCSV} data-tooltip="Als CSV-Datei herunterladen">
             {'\uD83D\uDCE5'} CSV Export
           </button>
-          <button className="btn btn-secondary" onClick={handleEmail} data-tooltip="E-Mail mit CSV-Anhang öffnen">
+          <button className="btn btn-primary" onClick={exportMonthXLSX} data-tooltip="Als Excel-Tabelle herunterladen (druckfertig auf A4)">
+            {'\uD83D\uDCCA'} Excel Export
+          </button>
+          <button className="btn btn-secondary" onClick={handleEmail} data-tooltip="E-Mail mit Excel-Anhang öffnen">
             {'\u2709\uFE0F'} Per E-Mail
           </button>
         </div>

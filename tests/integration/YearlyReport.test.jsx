@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import App from '../../src/App';
+import ExcelJS from 'exceljs';
 import { resetStore, seedStore } from '../setup';
 
 const testChildren = [
@@ -24,6 +25,7 @@ async function setupYear(extraStore = {}) {
 describe('YearlyReport', () => {
   beforeEach(() => {
     resetStore();
+    vi.clearAllMocks();
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-06-15T12:00:00'));
   });
@@ -88,5 +90,29 @@ describe('YearlyReport', () => {
     expect(call.content).toContain('Jahressumme');
     // Dezimalkomma im Export
     expect(call.content).toContain(';3,50');
+  });
+
+  it('Excel-Export speichert eine .xlsx mit Summenzeile als letzter Zeile', async () => {
+    await setupYear({
+      'meals-2026-04': {
+        '2026-04-08': { prices: { A: 3.5 }, selections: { c1: 'A' } },
+      },
+    });
+    fireEvent.change(screen.getByDisplayValue(String(new Date().getFullYear())), { target: { value: '2026' } });
+    await waitFor(() => expect(document.body.textContent).toMatch(/Gesamt:\s*1\s*Essen/), { timeout: 5000 });
+
+    fireEvent.click(screen.getByText(/Excel Export/));
+    await waitFor(() => expect(window.api.saveXLSX).toHaveBeenCalled());
+    const call = window.api.saveXLSX.mock.calls.at(-1)[0];
+    expect(call.filename).toBe('Jahresuebersicht_2026.xlsx');
+
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(call.data);
+    const ws = wb.worksheets[0];
+    expect(ws.pageSetup.orientation).toBe('landscape');
+    const last = ws.getRow(ws.rowCount);
+    expect(last.getCell(1).value).toBe('Gesamt');
+    expect(last.getCell(8).value.result).toBe(3.5); // April
+    expect(last.getCell(17).value.result).toBe(3.5); // Jahressumme
   });
 });

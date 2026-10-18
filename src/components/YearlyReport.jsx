@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import SortHeader from './ui/SortHeader';
 import { GERICHTE, MONATE, fmtEuro } from '../utils/dates';
 import { downloadCSV } from '../utils/csv';
+import { buildYearWorkbook, workbookToBytes, downloadXLSX } from '../utils/excel';
 import { useSortableTable } from '../hooks/useSortableTable';
 import { BreakdownDisplay } from '../utils/mealBreakdown';
 
@@ -55,6 +56,11 @@ export default function YearlyReport({ selectedYear, setSelectedYear, gruppeFilt
     downloadCSV(`Jahresuebersicht_${selectedYear}.csv`, csv);
   };
 
+  const exportYearXLSX = async () => {
+    const wb = await buildYearWorkbook({ year: selectedYear, gruppe: gruppeFilter, children: sortedData, summary: yearSummary });
+    downloadXLSX(`Jahresuebersicht_${selectedYear}.xlsx`, await workbookToBytes(wb));
+  };
+
   return (
     <div className="fade-in">
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
@@ -65,9 +71,14 @@ export default function YearlyReport({ selectedYear, setSelectedYear, gruppeFilt
             <option key={g}>{g}</option>
           ))}
         </select>
-        <button className="btn btn-primary" style={{ marginLeft: 'auto' }} onClick={exportYearCSV} data-tooltip="Jahresübersicht als CSV herunterladen">
-          {'\uD83D\uDCE5'} CSV Export
-        </button>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+          <button className="btn btn-primary" onClick={exportYearCSV} data-tooltip="Jahresübersicht als CSV herunterladen">
+            {'\uD83D\uDCE5'} CSV Export
+          </button>
+          <button className="btn btn-primary" onClick={exportYearXLSX} data-tooltip="Als Excel-Tabelle herunterladen (druckfertig auf A4 quer)">
+            {'\uD83D\uDCCA'} Excel Export
+          </button>
+        </div>
       </div>
 
       <div className="card" style={{ overflow: 'auto' }}>

@@ -6,16 +6,16 @@ export function sendEmail(subject, body) {
   }
 }
 
-export function sendEmailWithCSV(subject, body, csvFilename, csvContent) {
-  if (window.api?.sendEmailWithCSV) {
-    window.api.sendEmailWithCSV({ subject, body, csvFilename, csvContent });
+export function sendEmailWithAttachment(subject, body, filename, data, mimeType) {
+  if (window.api?.sendEmailWithAttachment) {
+    window.api.sendEmailWithAttachment({ subject, body, filename, data });
   } else {
-    // Browser-Fallback: CSV herunterladen + mailto öffnen
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Browser-Fallback: Anhang herunterladen + mailto öffnen
+    const blob = new Blob([data], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = csvFilename;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
     window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);

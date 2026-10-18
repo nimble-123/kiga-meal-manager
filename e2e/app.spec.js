@@ -154,6 +154,12 @@ test.describe('Monatsübersicht', () => {
   test('shows total footer', async ({ page }) => {
     await expect(page.getByText(/Gesamt:.*Essen/)).toBeVisible();
   });
+
+  test('Excel Export lädt eine .xlsx-Datei herunter', async ({ page }) => {
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: /Excel Export/ }).click();
+    expect((await download).suggestedFilename()).toMatch(/^Essensabrechnung_.+_\d{4}\.xlsx$/);
+  });
 });
 
 test.describe('Jahresübersicht', () => {
@@ -171,6 +177,12 @@ test.describe('Jahresübersicht', () => {
 
   test('shows yearly total footer', async ({ page }) => {
     await expect(page.getByText(/Jahressumme/)).toBeVisible();
+  });
+
+  test('Excel Export lädt eine .xlsx-Datei herunter', async ({ page }) => {
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: /Excel Export/ }).click();
+    expect((await download).suggestedFilename()).toMatch(/^Jahresuebersicht_\d{4}\.xlsx$/);
   });
 });
 
