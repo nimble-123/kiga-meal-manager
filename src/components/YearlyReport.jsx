@@ -53,6 +53,8 @@ export default function YearlyReport({ selectedYear, setSelectedYear, gruppeFilt
       const ys = yearSummary[c.id] || { months: Array(12).fill(0), total: 0 };
       csv += `${i + 1};${c.name};${c.gruppe};${c.kassenzeichen};${ys.months.map((m) => m.toFixed(2).replace('.', ',')).join(';')};${ys.total.toFixed(2).replace('.', ',')}\n`;
     });
+    const monthTotals = MONATE.map((_, m) => filteredChildren.reduce((sum, c) => sum + (yearSummary[c.id]?.months[m] || 0), 0));
+    csv += `;Gesamt;;;${monthTotals.map((m) => m.toFixed(2).replace('.', ',')).join(';')};${totalSum.toFixed(2).replace('.', ',')}\n`;
     downloadCSV(`Jahresuebersicht_${selectedYear}.csv`, csv);
   };
 
