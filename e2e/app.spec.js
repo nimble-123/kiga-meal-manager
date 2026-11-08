@@ -504,10 +504,11 @@ test.describe('Wochenerfassung', () => {
     await page.locator('select.input').first().selectOption({ label: 'April' });
     await page.locator('input[type="number"]').fill('2026');
 
-    // Müller hat trotz Abmeldung 1 Essen + 3,50 € (konsistent: Abmeldung zieht nicht ab)
+    // Müller hat trotz Abmeldung 1 Essen à 3,50 € (konsistent: Abmeldung zieht nicht ab),
+    // Monatssumme standardmäßig kaufmännisch auf volle Euro gerundet → 4,00 €
     const emmaRowMonth = page.getByRole('row', { name: /Müller, Emma/ });
-    await expect(emmaRowMonth).toContainText('3,50');
-    // Gesamtbetrag: 3 Essen je 3,50 € = 10,50 €
+    await expect(emmaRowMonth).toContainText('4,00');
+    // 3 Essen insgesamt
     await expect(page.getByText(/Gesamt:.*3.*Essen/)).toBeVisible();
   });
 

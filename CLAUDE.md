@@ -46,6 +46,7 @@ src/
     useAutoBackup.js   Automatisches periodisches Backup (Electron-only)
     useTour.js         Geführte App-Tour via driver.js
     useWeekView.js     Toggle für die Wochenerfassung (Tab/Shortcut/Tour), persistiert `weekViewEnabled`
+    useRounding.js     Toggle für die Rundung der Monatssumme auf volle Euro, persistiert `monthRounding`
   config/
     tourSteps.js       Tour-Schritte-Definition (17 Steps durch alle 6 Tabs)
   data/
@@ -98,6 +99,7 @@ src/
 - **Bulk-Zuweisung:** Im Tageserfassungs-Header kleine A-E-Buttons zum Zuweisen eines Gerichts an alle sichtbaren, nicht-abgemeldeten Kinder. Toggle-Verhalten (erneuter Klick entfernt). Nutzt `setBulkTodaySelection()` in `useMeals.js` für einen einzelnen Storage-Schreibvorgang.
 - **Wochenerfassung (optional):** Der Wochenerfassungs-Tab ist über `useWeekView` (`weekViewEnabled`, **standardmäßig aus**) in der Verwaltung (Section „Ansichten“) ein-/ausblendbar. `weekEnabled` steuert Tab (`Header`), Keyboard-Shortcut (Ctrl+2 inaktiv wenn aus) und den Tour-Schritt (`createTourSteps(setTab, weekEnabled)`). Wird der Tab deaktiviert, während er aktiv ist, springt die App auf `daily` zurück.
 - **Excel-Export:** Monats- und Jahresübersicht exportieren zusätzlich zu CSV eine `.xlsx` (`src/utils/excel.js`). Excel-Tabelle (`TableStyleMedium2`, gebänderte Zeilen), Rahmen um alle Zellen, **letzte Zeile = Summenzeile** (`SUBTOTAL(109, …)`, respektiert Filter), DIN A4 (Monat hoch, Jahr quer), auf Seitenbreite skaliert, Tabellenkopf wiederholt sich beim Druck. Reihenfolge = angezeigte Sortierung, Gruppenfilter wird berücksichtigt. ExcelJS per dynamischem Import, damit es nicht im Start-Bundle landet.
+- **Rundung der Monatssumme:** Die Monatssumme pro Kind wird kaufmännisch auf volle Euro gerundet (`roundEuro()` in `utils/dates.js`: erst auf Cent, dann auf Euro, gegen Float-Fehler). Schalter in der Verwaltung (Section „Abrechnung“) via `useRounding` (`monthRounding`, **standardmäßig an**, fehlender Key = an). Umsetzung zentral in `getMonthSummary` (`useMeals(selectedDate, activeChildren, { roundMonth })`): liefert `total` (ggf. gerundet), `exactTotal` und `rounded`. Damit nutzen Monatsübersicht (Tooltip „exakt …“), Jahresübersicht (Summe gerundeter Monatsbeträge), CSV, Excel und E-Mail automatisch die gerundeten Beträge. Reiner Schalter ohne Stichtag: Summen werden live berechnet, keine Migration. Tages-/Wochenerfassung und Auswertungs-Charts bleiben centgenau.
 - **ConfirmDialogs:** Alle destruktiven Aktionen (Kind/Gruppe/Stammdaten/Bewegungsdaten löschen, Backup wiederherstellen) zeigen ConfirmDialog.
 
 ## Wichtige Konventionen

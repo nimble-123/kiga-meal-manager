@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { storageGet, storageSet, subscribeStorage } from '../utils/storage';
-import { daysInMonth, fmtDate, GERICHTE } from '../utils/dates';
+import { daysInMonth, fmtDate, GERICHTE, roundEuro } from '../utils/dates';
 
-export function useMeals(selectedDate, activeChildren) {
+export function useMeals(selectedDate, activeChildren, { roundMonth = false } = {}) {
   const [dailyData, setDailyData] = useState({});
 
   const monthKey = useMemo(() => {
@@ -90,9 +90,15 @@ export function useMeals(selectedDate, activeChildren) {
           }
         });
       }
+      // Monatssumme pro Kind: exakten Betrag merken, ggf. kaufmännisch auf volle Euro runden
+      Object.values(summary).forEach((s) => {
+        s.exactTotal = Math.round(s.total * 100) / 100;
+        s.total = roundMonth ? roundEuro(s.total) : s.exactTotal;
+        s.rounded = roundMonth;
+      });
       return summary;
     },
-    [activeChildren, dailyData, selectedDate]
+    [activeChildren, dailyData, selectedDate, roundMonth]
   );
 
   return { dailyData, todayData, setTodayPrices, setTodaySelection, setBulkTodaySelection, setTodayAbmeldung, getMonthSummary };

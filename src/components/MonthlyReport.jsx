@@ -8,7 +8,7 @@ import { buildMonthWorkbook, workbookToBytes, downloadXLSX, XLSX_MIME } from '..
 import { useSortableTable } from '../hooks/useSortableTable';
 import { getSummaryBreakdown, BreakdownDisplay } from '../utils/mealBreakdown';
 
-export default function MonthlyReport({ selectedMonth, setSelectedMonth, selectedYear, setSelectedYear, gruppeFilter, setGruppeFilter, gruppen, filteredChildren, getMonthSummary }) {
+export default function MonthlyReport({ selectedMonth, setSelectedMonth, selectedYear, setSelectedYear, gruppeFilter, setGruppeFilter, gruppen, filteredChildren, getMonthSummary, roundingEnabled = false }) {
   const [monthSummary, setMonthSummary] = useState({});
 
   useEffect(() => {
@@ -111,7 +111,10 @@ export default function MonthlyReport({ selectedMonth, setSelectedMonth, selecte
                   <td style={{ fontSize: 12 }}>{c.zahlungspfl}</td>
                   <td style={{ fontSize: 12, fontFamily: 'monospace' }}>{c.kassenzeichen}</td>
                   <td style={{ textAlign: 'center', fontWeight: 600 }}>{s.count || '\u2013'}</td>
-                  <td style={{ textAlign: 'right', fontWeight: 700, color: s.total > 0 ? '#059669' : '#9CA3AF' }}>
+                  <td
+                    style={{ textAlign: 'right', fontWeight: 700, color: s.total > 0 ? '#059669' : '#9CA3AF' }}
+                    data-tooltip={s.rounded && s.exactTotal !== s.total ? `exakt ${fmtEuro(s.exactTotal)}` : undefined}
+                  >
                     {s.total > 0 ? fmtEuro(s.total) : '\u2013'}
                   </td>
                 </tr>
@@ -124,7 +127,14 @@ export default function MonthlyReport({ selectedMonth, setSelectedMonth, selecte
             Gesamt: {totalCount} Essen
             <BreakdownDisplay counts={breakdown} />
           </span>
-          <span style={{ color: '#059669' }}>{fmtEuro(totalSum)}</span>
+          <span style={{ color: '#059669' }}>
+            {fmtEuro(totalSum)}
+            {roundingEnabled && (
+              <span style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#9CA3AF', textAlign: 'right' }}>
+                Beträge pro Kind auf volle Euro gerundet
+              </span>
+            )}
+          </span>
         </div>
       </div>
     </div>

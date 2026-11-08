@@ -24,7 +24,7 @@ function Section({ title, icon, children, defaultOpen = false }) {
   );
 }
 
-export default function Administration({ children, activeChildren, gruppen, setChildrenBulk, setGruppenBulk, update, weekEnabled, setWeekView }) {
+export default function Administration({ children, activeChildren, gruppen, setChildrenBulk, setGruppenBulk, update, weekEnabled, setWeekView, roundingEnabled = true, setRounding }) {
   const [importPreview, setImportPreview] = useState(null);
   const [importMode, setImportMode] = useState('replace');
   const [confirm, setConfirm] = useState(null);
@@ -440,6 +440,28 @@ export default function Administration({ children, activeChildren, gruppen, setC
         </div>
         <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 10 }}>
           Blendet den Tab \u201EWochenerfassung\u201C ein (Wochenplan als Matrix Kinder \u00D7 Mo\u2013Fr).
+        </div>
+      </Section>
+
+      <Section title="Abrechnung" icon={'\uD83D\uDCB6'}>
+        <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 12, lineHeight: 1.6 }}>
+          Einstellungen für die Monatsabrechnung.
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '10px 16px', alignItems: 'center', fontSize: 13 }}>
+          <span style={{ color: '#6B7280' }}>Monatssumme runden:</span>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              aria-label="Monatssumme auf volle Euro runden"
+              checked={!!roundingEnabled}
+              onChange={(e) => setRounding?.(e.target.checked)}
+              style={{ width: 16, height: 16, accentColor: '#2D9F93' }}
+            />
+            <span>{roundingEnabled ? 'Auf volle Euro (kaufmännisch)' : 'Centgenau'}</span>
+          </label>
+        </div>
+        <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 10 }}>
+          Rundet die Monatssumme pro Kind kaufmännisch auf volle Euro (z.\u00A0B. 46,10\u00A0€ \u2192 46\u00A0€, 46,50\u00A0€ \u2192 47\u00A0€). Gilt für Monats- und Jahresübersicht, CSV, Excel und E-Mail.
         </div>
       </Section>
 

@@ -14,6 +14,7 @@ async function setupYear(extraStore = {}) {
     children: testChildren,
     gruppen: ['Delfin', 'Dino'],
     tourCompleted: true,
+    monthRounding: false, // centgenaue Beträge; Rundung wird in Rounding.test.jsx geprüft
     ...extraStore,
   });
   render(<App />);

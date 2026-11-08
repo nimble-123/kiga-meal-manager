@@ -6,7 +6,7 @@ import { buildYearWorkbook, workbookToBytes, downloadXLSX } from '../utils/excel
 import { useSortableTable } from '../hooks/useSortableTable';
 import { BreakdownDisplay } from '../utils/mealBreakdown';
 
-export default function YearlyReport({ selectedYear, setSelectedYear, gruppeFilter, setGruppeFilter, gruppen, filteredChildren, activeChildren, getMonthSummary }) {
+export default function YearlyReport({ selectedYear, setSelectedYear, gruppeFilter, setGruppeFilter, gruppen, filteredChildren, activeChildren, getMonthSummary, roundingEnabled = false }) {
   const [yearSummary, setYearSummary] = useState({});
 
   useEffect(() => {
@@ -126,7 +126,14 @@ export default function YearlyReport({ selectedYear, setSelectedYear, gruppeFilt
             Gesamt: {totalCount} Essen
             <BreakdownDisplay counts={breakdownCounts} />
           </span>
-          <span>Jahressumme: <span style={{ color: '#059669' }}>{fmtEuro(totalSum)}</span></span>
+          <span style={{ textAlign: 'right' }}>
+            Jahressumme: <span style={{ color: '#059669' }}>{fmtEuro(totalSum)}</span>
+            {roundingEnabled && (
+              <span style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#9CA3AF' }}>
+                Monatsbeträge pro Kind auf volle Euro gerundet
+              </span>
+            )}
+          </span>
         </div>
       </div>
     </div>
