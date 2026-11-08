@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0](https://github.com/nimble-123/kiga-meal-manager/compare/v1.7.0...v1.8.0) (2026-11-08)
+
+
+### Features
+
+* Monatssumme pro Kind kaufmännisch auf volle Euro runden ([#21](https://github.com/nimble-123/kiga-meal-manager/issues/21)) ([afa869b](https://github.com/nimble-123/kiga-meal-manager/commit/afa869bcdb1549a0628c90935aa1992d368ddc1f)), closes [#18](https://github.com/nimble-123/kiga-meal-manager/issues/18) [#19](https://github.com/nimble-123/kiga-meal-manager/issues/19) [#20](https://github.com/nimble-123/kiga-meal-manager/issues/20)
+
 ## [1.7.0](https://github.com/nimble-123/kiga-meal-manager/compare/v1.6.0...v1.7.0) (2026-10-18)
 
 
