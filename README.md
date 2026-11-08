@@ -38,7 +38,7 @@ Formeln, die beim Kopieren brechen, und am Monatsende Handarbeit für jede Famil
 - **Ohne Vorkenntnisse bedienbar.** Ein Klick pro Kind und Tag, eine geführte Tour beim ersten Start, Tooltips an allen Bedienelementen.
 - **Lokal und privat.** Keine Cloud, kein Server, kein Konto. Die Daten liegen in einer JSON-Datei im Benutzerordner.
 - **Richtig gerechnet.** Tagespreise pro Gericht, Abmeldungen mit Grund, Feiertage und Wochenenden automatisch gesperrt.
-- **Fertig für die Abrechnung.** Monatsübersicht pro Zahlungspflichtigem mit Kassenzeichen, als druckfertige Excel-Tabelle, CSV oder direkt per E-Mail.
+- **Fertig für die Abrechnung.** Monatsübersicht pro Zahlungspflichtigem mit Kassenzeichen, als druckfertige Excel-Tabelle, CSV oder direkt per E-Mail. Die Monatssumme pro Kind wird auf Wunsch kaufmännisch auf volle Euro gerundet (in der Verwaltung abschaltbar).
 - **Sicher vor Datenverlust.** Vollbackup, automatische periodische Backups und Bestätigungsdialoge bei allem, was löscht.
 
 ## Features

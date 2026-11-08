@@ -41,6 +41,13 @@ export function fmtEuro(n) {
   return n.toFixed(2).replace('.', ',') + ' \u20AC';
 }
 
+// Kaufmännisch auf volle Euro runden (ab ,50 aufrunden). Erst auf Cent runden,
+// damit Float-Fehler (z. B. 46.4999999 statt 46.50) das Ergebnis nicht verfälschen.
+export function roundEuro(n) {
+  const cents = Math.round((Number(n) || 0) * 100);
+  return Math.round(cents / 100);
+}
+
 export function getWeekMonday(isoDate) {
   const d = new Date(isoDate + 'T12:00:00');
   const dow = d.getDay();

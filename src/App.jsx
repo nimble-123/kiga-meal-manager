@@ -13,6 +13,7 @@ import { useMeals } from './hooks/useMeals';
 import { useWeekMeals } from './hooks/useWeekMeals';
 import { useTour } from './hooks/useTour';
 import { useWeekView } from './hooks/useWeekView';
+import { useRounding } from './hooks/useRounding';
 import { useAutoUpdate } from './hooks/useAutoUpdate';
 import UpdateBanner from './components/UpdateBanner';
 import { getWeekMonday } from './utils/dates';
@@ -28,7 +29,8 @@ export default function App() {
   const [gruppeFilter, setGruppeFilter] = useState('Alle');
 
   const { children, activeChildren, gruppen, loading, saveIndicator, addChild, updateChild, deleteChild, setChildrenBulk, setGruppenBulk, addGruppe, removeGruppe, renameGruppe } = useChildren();
-  const { todayData, setTodayPrices, setTodaySelection, setBulkTodaySelection, setTodayAbmeldung, getMonthSummary } = useMeals(selectedDate, activeChildren);
+  const { enabled: roundingEnabled, setRounding } = useRounding();
+  const { todayData, setTodayPrices, setTodaySelection, setBulkTodaySelection, setTodayAbmeldung, getMonthSummary } = useMeals(selectedDate, activeChildren, { roundMonth: roundingEnabled });
   const weekMonday = useMemo(() => getWeekMonday(weekAnchor), [weekAnchor]);
   const weekMeals = useWeekMeals(weekMonday, activeChildren);
   const { startTour, checkFirstUse } = useTour();
@@ -160,6 +162,7 @@ export default function App() {
                 gruppen={gruppen}
                 filteredChildren={filteredChildren}
                 getMonthSummary={getMonthSummary}
+                roundingEnabled={roundingEnabled}
               />
             )}
 
@@ -173,6 +176,7 @@ export default function App() {
                 filteredChildren={filteredChildren}
                 activeChildren={activeChildren}
                 getMonthSummary={getMonthSummary}
+                roundingEnabled={roundingEnabled}
               />
             )}
 
@@ -196,6 +200,8 @@ export default function App() {
                 update={update}
                 weekEnabled={weekEnabled}
                 setWeekView={setWeekView}
+                roundingEnabled={roundingEnabled}
+                setRounding={setRounding}
               />
             )}
           </>

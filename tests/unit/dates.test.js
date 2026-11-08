@@ -14,6 +14,7 @@ import {
   getPreviousWeekMonday,
   addDaysToISO,
   getMonthKey,
+  roundEuro,
 } from '../../src/utils/dates';
 
 describe('fmtEuro', () => {
@@ -125,5 +126,35 @@ describe('constants', () => {
     expect(MONATE).toHaveLength(12);
     expect(MONATE[0]).toBe('Januar');
     expect(MONATE[11]).toBe('Dezember');
+  });
+});
+
+describe('roundEuro', () => {
+  it('rundet unter ,50 kaufmännisch ab', () => {
+    expect(roundEuro(46.1)).toBe(46);
+    expect(roundEuro(46.49)).toBe(46);
+  });
+
+  it('rundet ab ,50 kaufmännisch auf', () => {
+    expect(roundEuro(46.5)).toBe(47);
+    expect(roundEuro(46.51)).toBe(47);
+    expect(roundEuro(47.6)).toBe(48);
+  });
+
+  it('lässt volle Beträge und 0 unverändert', () => {
+    expect(roundEuro(46)).toBe(46);
+    expect(roundEuro(0)).toBe(0);
+  });
+
+  it('ist robust gegen Float-Ungenauigkeiten aus Summen', () => {
+    // 0.1 + 0.2 + ... liefert in JS Werte wie 46.49999999999999
+    expect(roundEuro(46.49999999999999)).toBe(47);
+    expect(roundEuro(2.5 + 3.6 + 2.5 + 3.6 + 2.5 + 3.6)).toBe(18); // 18,30
+    expect(roundEuro(1.15 + 1.35)).toBe(3); // 2,50 trotz Float-Summe
+  });
+
+  it('behandelt ungültige Werte als 0', () => {
+    expect(roundEuro(undefined)).toBe(0);
+    expect(roundEuro(NaN)).toBe(0);
   });
 });
